@@ -44,7 +44,7 @@ class App extends React.Component {
       })
 
       hub.subscribe('smokers')
-        .on('data', function (message) {
+        .on('data', message => {
           const data = JSON.parse(message)
           if (data.userId !== this.state.username) {
             peer.signal(data.data)

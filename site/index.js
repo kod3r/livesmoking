@@ -2,14 +2,9 @@ import SimplePeer from 'simple-peer'
 import signalhub from 'signalhub'
 import React from 'react'
 import ReactDOM from 'react-dom'
-
-var getUserMedia = navigator.getUserMedia
-  || navigator.webkitGetUserMedia
-  || navigator.mozGetUserMedia
-  || navigator.msGetUserMedia;
+import './src/polyfills'
 
 const noop = function () {}
-// get video/voice stream
 
 const opts = {
   config: {
@@ -37,7 +32,8 @@ class App extends React.Component {
   };
 
   join = () => {
-    getUserMedia.call(navigator, {
+    // get video/voice stream
+    navigator.getUserMedia({
       video: true,
       audio: true
     }, stream => {

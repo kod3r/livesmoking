@@ -21,6 +21,8 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
+require('./src/polyfills');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -29,10 +31,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
 var noop = function noop() {};
-// get video/voice stream
 
 var opts = {
   config: {
@@ -65,7 +64,8 @@ var App = function (_React$Component) {
     }, _this.setUsername = function (e) {
       _this.setState({ username: e.target.value });
     }, _this.join = function () {
-      getUserMedia.call(navigator, {
+      // get video/voice stream
+      navigator.getUserMedia({
         video: true,
         audio: true
       }, function (stream) {
@@ -127,7 +127,7 @@ var App = function (_React$Component) {
 
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('app'));
 
-},{"react":199,"react-dom":56,"signalhub":211,"simple-peer":219}],2:[function(require,module,exports){
+},{"./src/polyfills":230,"react":199,"react-dom":56,"signalhub":211,"simple-peer":219}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -30171,5 +30171,12 @@ function extend() {
 
     return target
 }
+
+},{}],230:[function(require,module,exports){
+"use strict";
+
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+navigator.getUserMedia.bind(navigator);
 
 },{}]},{},[1]);

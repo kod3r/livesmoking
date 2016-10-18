@@ -1,0 +1,26 @@
+{
+  "name": "site",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify -t babelify index.js > bundle.js",
+    "watch": "watchify -t babelify index.js -o bundle.js",
+    "serve": "serve ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "serve": "^1.4.0",
+    "simple-peer": "^6.0.7"
+  },
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-stage-0": "^6.16.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.0",
+    "watchify": "^3.7.0"
+  }
+}

@@ -1,0 +1,10 @@
+coturn:
+  image: bprodoehl/turnserver
+  restart: always
+  net: host
+  restart: on-failure:10
+  ports:
+    - "3478:3478"
+    - "3478:3478/udp"
+  # environment:
+    # SKIP_AUTO_IP: "true"

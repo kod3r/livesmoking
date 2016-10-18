@@ -28,6 +28,9 @@ class App extends React.Component {
   }
 
   setUsername = (e) => {
+    if (e.keyCode === 13) {
+      return this.join()
+    }
     this.setState({ username: e.target.value })
   };
 
@@ -46,8 +49,8 @@ class App extends React.Component {
       hub.subscribe('smokers')
         .on('data', message => {
           const data = JSON.parse(message)
-          if (data.userId !== this.state.username) {
-            console.log(data.userId + ' joined')
+          if (data.username !== this.state.username) {
+            console.log(data.username + ' joined')
             peer.signal(data.data)
           }
         })
@@ -55,7 +58,7 @@ class App extends React.Component {
       peer.on('signal', data => {
         console.log('signal', data)
         hub.broadcast('smokers', JSON.stringify({
-          userId: this.state.username,
+          username: this.state.username,
           data
         }))
       })
@@ -76,7 +79,7 @@ class App extends React.Component {
   render() {
     return <div>
       { this.state.joint && this.state.peers.map(src => <video key={src} src={src} autoPlay />) }
-      <input placeholder="Enter a username" onChange={this.setUsername} />
+      <input required placeholder="Enter a username" onKeyUp={this.setUsername} />
       <button onClick={this.join}>Go!</button>
     </div>
   }

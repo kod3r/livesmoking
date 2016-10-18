@@ -22,16 +22,20 @@ var opts = {
 
 var hub = signalhub('my-app-name', ['http://192.168.0.106:3001']);
 
-hub.subscribe('my-channel').on('data', function (message) {
-  peer.signal(JSON.parse(message));
-});
-
 function gotMedia(stream) {
   var peer = new SimplePeer({
     // ...opts,
     initiator: location.hash === '#1',
     stream: stream
   });
+
+  hub.subscribe('my-channel').on('data', function (message) {
+    var data = JSON.parse(message);
+    if (data.userId !== location.hash) {
+      peer.signal(data.data);
+    }
+  });
+
   // var peer2 = new SimplePeer({ ...opts })
   peer.once('connect', function () {
     console.log('connect');
@@ -39,7 +43,10 @@ function gotMedia(stream) {
 
   peer.on('signal', function (data) {
     console.log('signal', data);
-    hub.broadcast('my-channel', JSON.stringify(data));
+    hub.broadcast('my-channel', JSON.stringify({
+      userId: location.hash,
+      data: data
+    }));
     // peer2.signal(data)
   });
 

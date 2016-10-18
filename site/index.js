@@ -1,13 +1,10 @@
 var SimplePeer = require('simple-peer')
 var signalhub = require('signalhub')
+require('./src/polyfills');
 
-var getUserMedia = navigator.getUserMedia
-  || navigator.webkitGetUserMedia
-  || navigator.mozGetUserMedia
-  || navigator.msGetUserMedia;
 
 // get video/voice stream
-getUserMedia.call(navigator, {
+navigator.getUserMedia({
   video: true,
   audio: true
 }, gotMedia, function () {

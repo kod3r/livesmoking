@@ -10,7 +10,7 @@ const opts = {
   config: {
     iceServers: [
       {
-        urls: 'turn:192.168.0.106'
+        urls: 'turn:192.168.0.106:3478'
       }
     ]
   }
@@ -65,7 +65,7 @@ class App extends React.Component {
 
       peer.on('stream', stream => {
         const peers = this.state.peers
-        this.state.peers.push(window.URL.createObjectURL(stream))
+        peers.push(window.URL.createObjectURL(stream))
         this.setState({
           peers: peers
         })
@@ -78,9 +78,12 @@ class App extends React.Component {
 
   render() {
     return <div>
-      { this.state.joint && this.state.peers.map(src => <video key={src} src={src} autoPlay />) }
-      <input required placeholder="Enter a username" onKeyUp={this.setUsername} />
-      <button onClick={this.join}>Go!</button>
+      { this.state.joint ? this.state.peers.map(src => <video key={src} src={src} autoPlay />) : (
+      <div>
+        <input required placeholder="Enter a username" onKeyUp={this.setUsername} />
+        <button onClick={this.join}>Go!</button>
+      </div>
+      ) }
     </div>
   }
 }

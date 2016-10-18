@@ -51,7 +51,7 @@ class App extends React.Component {
           }
         })
 
-      peer.on('signal', function (data) {
+      peer.on('signal', data => {
         console.log('signal', data)
         hub.broadcast('smokers', JSON.stringify({
           userId: this.state.username,
@@ -59,7 +59,7 @@ class App extends React.Component {
         }))
       })
 
-      peer.on('stream', function (stream) {
+      peer.on('stream', stream => {
         const peers = this.state.peers
         this.state.peers.push(window.URL.createObjectURL(stream))
         this.setState({

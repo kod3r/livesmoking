@@ -11,15 +11,13 @@ getUserMedia.call(navigator, {
   audio: true
 }, gotMedia, function () {});
 
-// const opts = {
-//   config: {
-//     iceServers: [
-//       {
-//         urls: 'turn:192.168.99.100'
-//       }
-//     ]
-//   }
-// }
+var opts = {
+  config: {
+    iceServers: [{
+      urls: 'turn:192.168.0.106'
+    }]
+  }
+};
 
 function gotMedia(stream) {
   var peer = new SimplePeer({

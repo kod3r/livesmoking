@@ -10,7 +10,7 @@ const opts = {
   config: {
     iceServers: [
       {
-        urls: 'turn:192.168.0.106'
+        urls: 'turn:192.168.0.106:3478'
       }
     ]
   }

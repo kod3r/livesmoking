@@ -1,4 +1,5 @@
 var SimplePeer = require('simple-peer')
+var signalhub = require('signalhub')
 
 var getUserMedia = navigator.getUserMedia
   || navigator.webkitGetUserMedia
@@ -23,6 +24,15 @@ const opts = {
   }
 }
 
+var hub = signalhub('my-app-name', [
+  'http://192.168.0.106:3001'
+])
+
+hub.subscribe('my-channel')
+  .on('data', function (message) {
+    peer.signal(JSON.parse(message))
+  })
+
 function gotMedia (stream) {
   var peer = new SimplePeer({
     // ...opts,
@@ -35,7 +45,8 @@ function gotMedia (stream) {
   })
 
   peer.on('signal', function (data) {
-    // console.log('p1 signal', data)
+    console.log('signal', data)
+    hub.broadcast('my-channel', JSON.stringify(data))
     // peer2.signal(data)
   })
 

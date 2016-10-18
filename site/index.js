@@ -1,18 +1,15 @@
-var SimplePeer = require('simple-peer')
-var signalhub = require('signalhub')
+import SimplePeer from 'simple-peer'
+import signalhub from 'signalhub'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
 var getUserMedia = navigator.getUserMedia
   || navigator.webkitGetUserMedia
   || navigator.mozGetUserMedia
   || navigator.msGetUserMedia;
 
+const noop = function () {}
 // get video/voice stream
-getUserMedia.call(navigator, {
-  video: true,
-  audio: true
-}, gotMedia, function () {
-
-})
 
 const opts = {
   config: {
@@ -24,48 +21,68 @@ const opts = {
   }
 }
 
-var hub = signalhub('my-app-name', [
+var hub = signalhub('livesmoking', [
   'http://192.168.0.106:3001'
 ])
 
-function gotMedia (stream) {
-  var peer = new SimplePeer({
-    // ...opts,
-    initiator: location.hash === '#1',
-    stream: stream
-  })
+class App extends React.Component {
+  state = {
+    username: '',
+    joint: false,
+    peers: []
+  }
 
-  hub.subscribe('my-channel')
-    .on('data', function (message) {
-      const data = JSON.parse(message)
-      if (data.userId !== location.hash) {
-        peer.signal(data.data)
-      }
+  setUsername = (e) => {
+    this.setState({ username: e.target.value })
+  };
+
+  join = () => {
+    getUserMedia.call(navigator, {
+      video: true,
+      audio: true
+    }, stream => {
+      var peer = new SimplePeer({
+        ...opts,
+        initiator: location.hash === '#1',
+        stream: stream
+      })
+
+      hub.subscribe('smokers')
+        .on('data', function (message) {
+          const data = JSON.parse(message)
+          if (data.userId !== this.state.username) {
+            peer.signal(data.data)
+          }
+        })
+
+      peer.on('signal', function (data) {
+        console.log('signal', data)
+        hub.broadcast('smokers', JSON.stringify({
+          userId: this.state.username,
+          data
+        }))
+      })
+
+      peer.on('stream', function (stream) {
+        const peers = this.state.peers
+        this.state.peers.push(window.URL.createObjectURL(stream))
+        this.setState({
+          peers: peers
+        })
+      })
+    }, noop)
+    this.setState({
+      joint: true
     })
+  };
 
-  // var peer2 = new SimplePeer({ ...opts })
-  peer.once('connect', () => {
-    console.log('connect')
-  })
-
-  peer.on('signal', function (data) {
-    console.log('signal', data)
-    hub.broadcast('my-channel', JSON.stringify({
-      userId: location.hash,
-      data
-    }))
-    // peer2.signal(data)
-  })
-
-  // peer2.on('signal', function (data) {
-  //   console.log('p2 signal', data)
-  //   peer.signal(data)
-  // })
-
-  peer.on('stream', function (stream) {
-    // got remote video stream, now let's show it in a video tag
-    var video = document.querySelector('video')
-    video.src = window.URL.createObjectURL(stream)
-    video.play()
-  })
+  render() {
+    return <div>
+      { this.state.joint && this.state.peers.map(src => <video src={src} autoplay />) }
+      <input placeholder="Enter a username" onChange={this.setUsername} />
+      <button onClick={this.join}>Go!</button>
+    </div>
+  }
 }
+
+ReactDOM.render(<App />, document.getElementById('app'))

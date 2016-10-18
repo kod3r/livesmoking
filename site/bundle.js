@@ -1,37 +1,46 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var SimplePeer = require('simple-peer');
 
 // get video/voice stream
-navigator.getUserMedia({ video: true, audio: true }, gotMedia, function () {});
+navigator.getUserMedia({
+  video: true,
+  audio: true
+}, gotMedia, function () {});
 
-var opts = {
-  config: {
-    iceServers: [{
-      urls: 'turn:192.168.99.100'
-    }]
-  }
-};
+// const opts = {
+//   config: {
+//     iceServers: [
+//       {
+//         urls: 'turn:192.168.99.100'
+//       }
+//     ]
+//   }
+// }
 
 function gotMedia(stream) {
-  console.log(_extends({}, opts, { initiator: true, stream: stream }));
-  var peer1 = new SimplePeer(_extends({}, opts, { initiator: location.hash === '#1', stream: stream }));
+  var peer = new SimplePeer({
+    // ...opts,
+    initiator: location.hash === '#1',
+    stream: stream
+  });
   // var peer2 = new SimplePeer({ ...opts })
+  peer.once('connect', function () {
+    console.log('connect');
+  });
 
-  peer1.on('signal', function (data) {
-    console.log('p1 signal', data);
+  peer.on('signal', function (data) {
+    // console.log('p1 signal', data)
     // peer2.signal(data)
   });
 
   // peer2.on('signal', function (data) {
   //   console.log('p2 signal', data)
-  //   peer1.signal(data)
+  //   peer.signal(data)
   // })
 
-  peer1.on('stream', function (stream) {
+  peer.on('stream', function (stream) {
     // got remote video stream, now let's show it in a video tag
     var video = document.querySelector('video');
     video.src = window.URL.createObjectURL(stream);

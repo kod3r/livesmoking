@@ -3,8 +3,10 @@
 
 var SimplePeer = require('simple-peer');
 
+var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
 // get video/voice stream
-navigator.getUserMedia({
+getUserMedia.call(navigator, {
   video: true,
   audio: true
 }, gotMedia, function () {});

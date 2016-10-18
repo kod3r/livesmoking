@@ -47,6 +47,7 @@ class App extends React.Component {
         .on('data', message => {
           const data = JSON.parse(message)
           if (data.userId !== this.state.username) {
+            console.log(data.userId + ' joined')
             peer.signal(data.data)
           }
         })
@@ -74,7 +75,7 @@ class App extends React.Component {
 
   render() {
     return <div>
-      { this.state.joint && this.state.peers.map(src => <video src={src} autoplay />) }
+      { this.state.joint && this.state.peers.map(src => <video key={src} src={src} autoPlay />) }
       <input placeholder="Enter a username" onChange={this.setUsername} />
       <button onClick={this.join}>Go!</button>
     </div>

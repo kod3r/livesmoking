@@ -5,11 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify -t babelify index.js > bundle.js",
-    "watch": "watchify --debug -t babelify index.js -o bundle.js",
-    "budo": "budo -- --debug -t babelify index.js -o bundle.js",
-    "serve": "serve .",
-    "signal": "signalhub listen --port 3001"
+    "build": "browserify -t babelify index.js > public/bundle.js",
+    "watch": "watchify --debug -t babelify index.js -o public/bundle.js",
+    "budo": "budo -- --debug -t babelify index.js -o public/bundle.js",
+    "serve": "serve ."
   },
   "author": "",
   "license": "ISC",

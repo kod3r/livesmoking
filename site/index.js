@@ -10,14 +10,14 @@ const opts = {
   config: {
     iceServers: [
       {
-        urls: 'turn:192.168.0.106:3478'
+        urls: 'turn:koenschmeets.nl:3478'
       }
     ]
   }
 }
 
 var hub = signalhub('livesmoking', [
-  'http://192.168.0.106:3001'
+  'https://livesmoking.koenschmeets.nl/signal'
 ])
 
 class App extends React.Component {
@@ -35,6 +35,10 @@ class App extends React.Component {
   };
 
   join = () => {
+    if (this.state.username === 'webkiit') {
+      return alert('GTFO!!!')
+    }
+
     // get video/voice stream
     navigator.getUserMedia({
       video: true,

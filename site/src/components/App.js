@@ -11,6 +11,8 @@ const peerOpts = {
     ]
   }
 }
+
+// const signaler = new Signaler('ws://localhost/signals')
 const signaler = new Signaler('wss://livesmoking.koenschmeets.nl/signals')
 const multiPeer = new MultiPeer(signaler, peerOpts)
 

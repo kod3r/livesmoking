@@ -7,7 +7,6 @@ export default class MultiPeer {
     this.signaler.on('join', ::this.onPeerAdded)
     this.signaler.on('leave', ::this.onPeerRemoved)
     this.signaler.on('signal', ::this.onSignal)
-    // this.signaler.on('broadcast', ::this.onBroadcast)
     this.peerOpts = peerOpts
     this.peers = {}
     this.streams = []
@@ -74,7 +73,7 @@ export default class MultiPeer {
   getLocalStream() {
     if (!this.stream) {
       this.stream = new Promise(resolve => {
-        navigator.getUserMedia({
+        window.navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true
         }, resolve, err => {

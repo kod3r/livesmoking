@@ -42,25 +42,16 @@ wss.on('connection', ws => {
         const signalEvt = JSON.stringify(['signal', payload])
         connections[data.channel][data.username].send(signalEvt)
         break
-      // case 'broadcast':
-      //   Object.keys(connections[data.channel]).forEach(username => {
-      //     if (username === data.username) {
-      //       return
-      //     }
-      //     const event = JSON.stringify(['broadcast', {
-      //       username: data.username,
-      //       signal: data.payload
-      //     }])
-      //     const ws = connections[data.channel][username]
-      //     ws.send(event)
-      //   })
-      //   break
     }
   })
   ws.on('close', () => {
     console.log('closing connection')
-    const channelName = ws._channelName
-    const userName = ws._userName
-    delete connections[channelName][userName]
+    const channel = ws._channelName
+    const username = ws._userName
+    delete connections[channel][username]
+    Object.keys(connections[channel]).forEach(activeUsername => {
+      const leaveEvt = JSON.stringify(['leave', username])
+      connections[channel][activeUsername].send(leaveEvt)
+    })
   })
 })

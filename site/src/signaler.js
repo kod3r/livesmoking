@@ -47,12 +47,4 @@ export default class Signaler {
       signal
     })
   }
-
-  // broadcast(channel, username, payload) {
-  //   return this.send('broadcast', {
-  //     channel,
-  //     username,
-  //     payload
-  //   })
-  // }
 }

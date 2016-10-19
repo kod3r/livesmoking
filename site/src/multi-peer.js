@@ -34,6 +34,7 @@ export default class MultiPeer {
       this.signaler.signal('smoky', this.username, username, data)
     })
     peer.on('stream', stream => {
+      stream.username = username
       this.streams.push(stream)
       this.onStreams(this.streams)
     })
@@ -58,7 +59,10 @@ export default class MultiPeer {
   }
 
   onPeerRemoved(username) {
+    this.peers[username].destroy()
     delete this.peers[username]
+    this.streams = this.streams.filter(stream => stream.username !== username)
+    this.onStreams(this.streams)
   }
 
   onSignal(data) {
@@ -66,9 +70,6 @@ export default class MultiPeer {
       this.peers[data.origin].signal(data.signal)
     }
   }
-
-  // onBroadcast(data) {
-  // }
 
   getLocalStream() {
     if (!this.stream) {

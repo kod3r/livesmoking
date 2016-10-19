@@ -26729,7 +26729,8 @@ var peerOpts = {
     }]
   }
 };
-var signaler = new _signaler2.default('wss://livesmoking.koenschmeets.nl/signals');
+// const signaler = new Signaler('wss://livesmoking.koenschmeets.nl/signals')
+var signaler = new _signaler2.default('ws://localhost/signals');
 var multiPeer = new _multiPeer2.default(signaler, peerOpts);
 
 var App = function (_React$Component) {
@@ -26858,6 +26859,7 @@ var MultiPeer = function () {
         _this.signaler.signal('smoky', _this.username, username, data);
       });
       peer.on('stream', function (stream) {
+        stream.username = username;
         _this.streams.push(stream);
         _this.onStreams(_this.streams);
       });
@@ -26887,7 +26889,12 @@ var MultiPeer = function () {
   }, {
     key: 'onPeerRemoved',
     value: function onPeerRemoved(username) {
+      this.peers[username].destroy();
       delete this.peers[username];
+      this.streams = this.streams.filter(function (stream) {
+        return stream.username !== username;
+      });
+      this.onStreams(this.streams);
     }
   }, {
     key: 'onSignal',
@@ -26896,10 +26903,6 @@ var MultiPeer = function () {
         this.peers[data.origin].signal(data.signal);
       }
     }
-
-    // onBroadcast(data) {
-    // }
-
   }, {
     key: 'getLocalStream',
     value: function getLocalStream() {
@@ -27007,15 +27010,6 @@ var Signaler = function () {
         signal: _signal
       });
     }
-
-    // broadcast(channel, username, payload) {
-    //   return this.send('broadcast', {
-    //     channel,
-    //     username,
-    //     payload
-    //   })
-    // }
-
   }]);
 
   return Signaler;

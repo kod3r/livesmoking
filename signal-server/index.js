@@ -8,12 +8,23 @@ const connections = {
   smoky: {}
 }
 
+safeSend(channel, username, event) {
+  if (connections[channel] && connections[channel][username]) {
+    connections[channel][username].send(event)
+  }
+}
+
 wss.on('connection', ws => {
   console.log('new connection')
   ws.on('message', message => {
     const [action, data] = JSON.parse(message)
     switch (action) {
       case 'join':
+        // check if data is allright
+        if (!connections[data.channel] || !connections[data.channel][data.username]) {
+          return
+        }
+
         // save the channel / username on the connection object
         // for easy disconnecting later
         ws._channelName = data.channel
@@ -27,7 +38,7 @@ wss.on('connection', ws => {
         // broadcast join event to others
         Object.keys(connections[data.channel]).forEach(username => {
           const joinEvt = JSON.stringify(['join', data.username])
-          connections[data.channel][username].send(joinEvt)
+          safeSend(data.channel, username, joinEvt)
         })
 
         // store the connection
@@ -39,17 +50,20 @@ wss.on('connection', ws => {
           signal: data.signal
         }
         const signalEvt = JSON.stringify(['signal', payload])
-        connections[data.channel][data.username].send(signalEvt)
+        safeSend(data.channel, data.username, signalEvt)
         break
     }
   })
   ws.on('close', () => {
     const channel = ws._channelName
     const username = ws._userName
+    if ( ! connections[channel][username]) {
+      return
+    }
     delete connections[channel][username]
     Object.keys(connections[channel]).forEach(activeUsername => {
       const leaveEvt = JSON.stringify(['leave', username])
-      connections[channel][activeUsername].send(leaveEvt)
+      safeSend(channel, activeUsername, leaveEvt)
     })
   })
 })

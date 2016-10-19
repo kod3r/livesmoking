@@ -1,3 +1,6 @@
+import debug from 'debug'
+const log = debug('signaler')
+
 export default class Signaler {
   constructor(url) {
     this.url = url
@@ -11,6 +14,7 @@ export default class Signaler {
         ws.onmessage = (e) => {
           const data = JSON.parse(e.data)
           const [event, payload] = data
+          log('event', event, payload)
           this.cbs[event](payload)
         }
         ws.onopen = () => resolve(ws)
@@ -24,6 +28,7 @@ export default class Signaler {
   }
 
   send(action, payload) {
+    log('action', action, payload)
     return this.getWS()
       .then(ws =>
         ws.send(JSON.stringify([action, payload]))

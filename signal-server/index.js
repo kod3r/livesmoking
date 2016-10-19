@@ -20,8 +20,8 @@ wss.on('connection', ws => {
     const [action, data] = JSON.parse(message)
     switch (action) {
       case 'join':
-        // check if data is allright
-        if (!connections[data.channel] || !connections[data.channel][data.username]) {
+        // check if the channel exists
+        if (!connections[data.channel]) {
           return
         }
 
@@ -32,17 +32,18 @@ wss.on('connection', ws => {
 
         // get the current users in the channel
         const otherusers = Object.keys(connections[data.channel])
+
+        // store the connection
+        connections[data.channel][data.username] = ws
+
         const peersEvt = JSON.stringify(['peers', otherusers])
         ws.send(peersEvt)
 
         // broadcast join event to others
-        Object.keys(connections[data.channel]).forEach(username => {
+        otherusers.forEach(username => {
           const joinEvt = JSON.stringify(['join', data.username])
           safeSend(data.channel, username, joinEvt)
         })
-
-        // store the connection
-        connections[data.channel][data.username] = ws
         break
       case 'signal':
         const payload = {
@@ -57,7 +58,8 @@ wss.on('connection', ws => {
   ws.on('close', () => {
     const channel = ws._channelName
     const username = ws._userName
-    if ( ! connections[channel][username]) {
+    if (!connections[channel] || !connections[channel][username]) {
+      console.log(`coulnd't find channel ${channel} or username ${username}`)
       return
     }
     delete connections[channel][username]

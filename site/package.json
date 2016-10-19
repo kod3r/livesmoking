@@ -26,6 +26,7 @@
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
     "budo": "^9.2.1",
+    "debug": "^2.2.0",
     "envify": "^3.4.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",

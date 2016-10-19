@@ -26872,9 +26872,15 @@ var _simplePeer = require('simple-peer');
 
 var _simplePeer2 = _interopRequireDefault(_simplePeer);
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var log = (0, _debug2.default)('signaler');
 
 var MultiPeer = function () {
   function MultiPeer(signaler, peerOpts) {
@@ -26893,6 +26899,7 @@ var MultiPeer = function () {
   _createClass(MultiPeer, [{
     key: 'join',
     value: function join(channel, username, onStreams) {
+      log('join', channel, username);
       this.username = username;
       this.channel = channel;
       this.onStreams = onStreams;
@@ -26925,6 +26932,7 @@ var MultiPeer = function () {
     value: function onReceivedPeers(usernames) {
       var _this2 = this;
 
+      log('onReceivedPeers', usernames);
       this.getLocalStream().then(function (stream) {
         usernames.forEach(function (username) {
           _this2.peers[username] = _this2.createPeer(username, stream, false);
@@ -26936,6 +26944,7 @@ var MultiPeer = function () {
     value: function onPeerAdded(username) {
       var _this3 = this;
 
+      log('onPeerAdded', username);
       this.getLocalStream().then(function (stream) {
         _this3.peers[username] = _this3.createPeer(username, stream, true);
       });
@@ -26943,6 +26952,7 @@ var MultiPeer = function () {
   }, {
     key: 'onPeerRemoved',
     value: function onPeerRemoved(username) {
+      log('onPeerRemoved', username);
       this.peers[username].destroy();
       delete this.peers[username];
       this.streams = this.streams.filter(function (stream) {
@@ -26979,7 +26989,7 @@ var MultiPeer = function () {
 
 exports.default = MultiPeer;
 
-},{"simple-peer":196}],201:[function(require,module,exports){
+},{"debug":7,"simple-peer":196}],201:[function(require,module,exports){
 "use strict";
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
@@ -26997,7 +27007,15 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var log = (0, _debug2.default)('signaler');
 
 var Signaler = function () {
   function Signaler(url) {
@@ -27023,6 +27041,7 @@ var Signaler = function () {
             var event = _data[0];
             var payload = _data[1];
 
+            log('event', event, payload);
             _this.cbs[event](payload);
           };
           ws.onopen = function () {
@@ -27040,6 +27059,7 @@ var Signaler = function () {
   }, {
     key: 'send',
     value: function send(action, payload) {
+      log('action', action, payload);
       return this.getWS().then(function (ws) {
         return ws.send(JSON.stringify([action, payload]));
       });
@@ -27069,6 +27089,6 @@ var Signaler = function () {
 
 exports.default = Signaler;
 
-},{}],203:[function(require,module,exports){
+},{"debug":7}],203:[function(require,module,exports){
 module.exports = "html, body {\n  margin: 0;\n  padding: 0; }\n\n* {\n  font-family: Roboto;\n  font-weight: 400; }\n\n.stream .user {\n  display: inline-block;\n  margin-right: 20px;\n  background-color: #ddd;\n  padding: 20px;\n  cursor: pointer; }\n  .stream .user.unmuted {\n    background-color: green; }\n  .stream .user .username {\n    font-weight: 300;\n    font-size: 20px;\n    margin-top: 0; }\n  .stream .user .video {\n    width: 200px; }\n";
 },{}]},{},[1]);

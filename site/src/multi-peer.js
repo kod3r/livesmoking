@@ -1,4 +1,6 @@
 import SimplePeer from 'simple-peer'
+import debug from 'debug'
+const log = debug('signaler')
 
 export default class MultiPeer {
   constructor(signaler, peerOpts) {
@@ -13,6 +15,7 @@ export default class MultiPeer {
   }
 
   join(channel, username, onStreams) {
+    log('join', channel, username)
     this.username = username
     this.channel = channel
     this.onStreams = onStreams
@@ -41,6 +44,7 @@ export default class MultiPeer {
   }
 
   onReceivedPeers(usernames) {
+    log('onReceivedPeers', usernames)
     this.getLocalStream()
       .then(stream => {
         usernames.forEach(username => {
@@ -50,6 +54,7 @@ export default class MultiPeer {
   }
 
   onPeerAdded(username) {
+    log('onPeerAdded', username)
     this.getLocalStream()
       .then(stream => {
         this.peers[username] = this.createPeer(username, stream, true)
@@ -57,6 +62,7 @@ export default class MultiPeer {
   }
 
   onPeerRemoved(username) {
+    log('onPeerRemoved', username)
     this.peers[username].destroy()
     delete this.peers[username]
     this.streams = this.streams.filter(stream => stream.username !== username)

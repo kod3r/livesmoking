@@ -1,6 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+require('./src/shim');
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -13,13 +15,20 @@ var _App = require('./src/components/App');
 
 var _App2 = _interopRequireDefault(_App);
 
+var _style = require('./styles/style.scss');
+
+var _style2 = _interopRequireDefault(_style);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var styleEl = document.createElement('style');
+styleEl.innerHTML = _style2.default;
+document.head.appendChild(styleEl);
 var app = document.createElement('div');
 document.body.appendChild(app);
 _reactDom2.default.render(_react2.default.createElement(_App2.default, null), app);
 
-},{"./src/components/App":199,"react":188,"react-dom":45}],2:[function(require,module,exports){
+},{"./src/components/App":199,"./src/shim":201,"./styles/style.scss":203,"react":188,"react-dom":45}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -26723,12 +26732,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var peerOpts = {
   config: {
     iceServers: [{
-      urls: 'turn:148.251.12.99:3478'
+      urls: "turn:148.251.12.99:3478"
     }]
   }
 };
-var signaler = new _signaler2.default('ws://localhost/signals');
-// const signaler = new Signaler('wss://livesmoking.koenschmeets.nl/signals')
+
+var signaler = new _signaler2.default("wss://livesmoking.koenschmeets.nl/signals");
 var multiPeer = new _multiPeer2.default(signaler, peerOpts);
 
 var App = function (_React$Component) {
@@ -26773,20 +26782,34 @@ var App = function (_React$Component) {
     value: function render() {
       return _react2.default.createElement(
         'div',
-        null,
+        { className: 'stream' },
         this.state.joint ? this.state.streams.map(function (stream, i) {
-          return _react2.default.createElement('video', {
-            key: i,
-            style: { height: 200, width: 200 },
-            src: window.URL.createObjectURL(stream),
-            autoPlay: true });
+          return _react2.default.createElement(
+            'div',
+            { key: i, className: 'user' },
+            _react2.default.createElement(
+              'h2',
+              { className: 'username' },
+              stream.username
+            ),
+            _react2.default.createElement('video', {
+              className: 'video',
+              src: window.URL.createObjectURL(stream),
+              autoPlay: true })
+          );
         }) : _react2.default.createElement(
           'div',
-          null,
-          _react2.default.createElement('input', { required: true, placeholder: 'Enter a username', onKeyUp: this.setUsername.bind(this) }),
+          { className: 'select-username' },
+          _react2.default.createElement('input', {
+            className: 'input',
+            required: true,
+            placeholder: 'Enter a username',
+            onKeyUp: this.setUsername.bind(this) }),
           this.state.username && _react2.default.createElement(
             'button',
-            { onClick: this.onJoinClicked.bind(this) },
+            {
+              className: 'button',
+              onClick: this.onJoinClicked.bind(this) },
             'Go!'
           )
         )
@@ -26799,7 +26822,7 @@ var App = function (_React$Component) {
 
 exports.default = App;
 
-},{"../multi-peer":200,"../signaler":201,"react":188}],200:[function(require,module,exports){
+},{"../multi-peer":200,"../signaler":202,"react":188}],200:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26835,10 +26858,17 @@ var MultiPeer = function () {
   _createClass(MultiPeer, [{
     key: 'join',
     value: function join(channel, username, onStreams) {
+      var _this = this;
+
       this.username = username;
       this.channel = channel;
       this.onStreams = onStreams;
       this.signaler.join(channel, username);
+      this.getLocalStream().then(function (stream) {
+        stream.username = username;
+        _this.streams.push(stream);
+        _this.onStreams(_this.streams);
+      });
     }
   }, {
     key: 'leave',
@@ -26846,42 +26876,43 @@ var MultiPeer = function () {
   }, {
     key: 'createPeer',
     value: function createPeer(username, stream, initiator) {
-      var _this = this;
+      var _this2 = this;
 
       var peer = new _simplePeer2.default(_extends({}, this.peerOpts, {
         stream: stream,
         initiator: initiator
       }));
       peer.on('signal', function (data) {
-        _this.signaler.signal('smoky', _this.username, username, data);
+        _this2.signaler.signal('smoky', _this2.username, username, data);
       });
       peer.on('stream', function (stream) {
-        console.log('got stream');
+        console.log('stream', stream);
         stream.username = username;
-        _this.streams.push(stream);
-        _this.onStreams(_this.streams);
+        _this2.streams.push(stream);
+        _this2.onStreams(_this2.streams);
       });
       return peer;
     }
   }, {
     key: 'onReceivedPeers',
     value: function onReceivedPeers(usernames) {
-      var _this2 = this;
+      var _this3 = this;
 
+      console.log('onReceivedPeers');
       this.getLocalStream().then(function (stream) {
-        _this2.peers = usernames.reduce(function (memo, username) {
-          memo[username] = _this2.createPeer(username, stream, false);
-          return memo;
-        }, {});
+        usernames.forEach(function (username) {
+          _this3.peers[username] = _this3.createPeer(username, stream, false);
+        });
       });
     }
   }, {
     key: 'onPeerAdded',
     value: function onPeerAdded(username) {
-      var _this3 = this;
+      var _this4 = this;
 
+      console.log('onPeerAdded');
       this.getLocalStream().then(function (stream) {
-        _this3.peers[username] = _this3.createPeer(username, stream, true);
+        _this4.peers[username] = _this4.createPeer(username, stream, true);
       });
     }
   }, {
@@ -26906,7 +26937,7 @@ var MultiPeer = function () {
     value: function getLocalStream() {
       if (!this.stream) {
         this.stream = new Promise(function (resolve) {
-          window.navigator.mediaDevices.getUserMedia({
+          window.navigator.getUserMedia({
             video: true,
             audio: true
           }, resolve, function (err) {
@@ -26924,6 +26955,13 @@ var MultiPeer = function () {
 exports.default = MultiPeer;
 
 },{"simple-peer":196}],201:[function(require,module,exports){
+"use strict";
+
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+navigator.getUserMedia.bind(navigator);
+
+},{}],202:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27008,4 +27046,6 @@ var Signaler = function () {
 
 exports.default = Signaler;
 
+},{}],203:[function(require,module,exports){
+module.exports = "html, body {\n  margin: 0;\n  padding: 0; }\n\n* {\n  font-family: Roboto;\n  font-weight: 400; }\n\n.stream .username {\n  font-weight: 300; }\n\n.stream .user {\n  display: inline-block;\n  margin-right: 20px;\n  background-color: #ddd;\n  padding: 20px; }\n\n.stream .username {\n  font-size: 20px;\n  margin-top: 0; }\n\n.stream .video {\n  width: 200px; }\n";
 },{}]},{},[1]);

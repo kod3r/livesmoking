@@ -6,14 +6,13 @@ const peerOpts = {
   config: {
     iceServers: [
       {
-        urls: 'turn:148.251.12.99:3478'
+        urls: process.env.SITE_TURN_SERVER
       }
     ]
   }
 }
 
-// const signaler = new Signaler('ws://localhost/signals')
-const signaler = new Signaler('wss://livesmoking.koenschmeets.nl/signals')
+const signaler = new Signaler(process.env.SITE_SIGNAL_SERVER)
 const multiPeer = new MultiPeer(signaler, peerOpts)
 
 export default class App extends React.Component {
@@ -45,19 +44,27 @@ export default class App extends React.Component {
   }
 
   render() {
-    return <div>
+    return <div className="stream">
       { this.state.joint ?
         this.state.streams.map((stream, i) =>
-          <video
-            key={i}
-            style={{height: 200, width: 200}}
-            src={window.URL.createObjectURL(stream)}
-            autoPlay />
+          <div key={i} className="user">
+            <h2 className="username">{ stream.username }</h2>
+            <video
+              className="video"
+              src={window.URL.createObjectURL(stream)}
+              autoPlay />
+          </div>
       ) : (
-      <div>
-        <input required placeholder="Enter a username" onKeyUp={::this.setUsername} />
+      <div className="select-username">
+        <input
+          className="input"
+          required
+          placeholder="Enter a username"
+          onKeyUp={::this.setUsername} />
         { this.state.username && (
-        <button onClick={::this.onJoinClicked}>
+        <button
+          className="button"
+          onClick={::this.onJoinClicked}>
           Go!
         </button>
         ) }

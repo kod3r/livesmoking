@@ -17,6 +17,12 @@ export default class MultiPeer {
     this.channel = channel
     this.onStreams = onStreams
     this.signaler.join(channel, username)
+    this.getLocalStream()
+      .then(stream => {
+        stream.username = username
+        this.streams.push(stream)
+        this.onStreams(this.streams)
+      })
   }
 
   leave() {
@@ -43,10 +49,9 @@ export default class MultiPeer {
   onReceivedPeers(usernames) {
     this.getLocalStream()
       .then(stream => {
-        this.peers = usernames.reduce((memo, username) => {
-          memo[username] = this.createPeer(username, stream, false)
-          return memo
-        }, {})
+        usernames.forEach(username => {
+          this.peers[username] = this.createPeer(username, stream, false)
+        })
       })
   }
 
@@ -73,7 +78,7 @@ export default class MultiPeer {
   getLocalStream() {
     if (!this.stream) {
       this.stream = new Promise(resolve => {
-        window.navigator.mediaDevices.getUserMedia({
+        window.navigator.getUserMedia({
           video: true,
           audio: true
         }, resolve, err => {

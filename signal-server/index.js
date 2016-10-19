@@ -18,21 +18,20 @@ wss.on('connection', ws => {
         // for easy disconnecting later
         ws._channelName = data.channel
         ws._userName = data.username
-        // store the connection
-        connections[data.channel][data.username] = ws
-        // "reply" with the peers
-        const filteredUsernames = Object.keys(connections[data.channel])
-          .filter(username => username !== data.username)
-        const peersEvt = JSON.stringify(['peers', filteredUsernames])
+
+        // get the current users in the channel
+        const otherusers = Object.keys(connections[data.channel])
+        const peersEvt = JSON.stringify(['peers', otherusers])
         ws.send(peersEvt)
+
         // broadcast join event to others
         Object.keys(connections[data.channel]).forEach(username => {
-          if (username === data.username) {
-            return
-          }
           const joinEvt = JSON.stringify(['join', data.username])
           connections[data.channel][username].send(joinEvt)
         })
+
+        // store the connection
+        connections[data.channel][data.username] = ws
         break
       case 'signal':
         const payload = {
@@ -45,7 +44,6 @@ wss.on('connection', ws => {
     }
   })
   ws.on('close', () => {
-    console.log('closing connection')
     const channel = ws._channelName
     const username = ws._userName
     delete connections[channel][username]

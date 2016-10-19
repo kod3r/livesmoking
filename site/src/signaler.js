@@ -11,7 +11,6 @@ export default class Signaler {
         ws.onmessage = (e) => {
           const data = JSON.parse(e.data)
           const [event, payload] = data
-          console.log('<-', event, payload)
           this.cbs[event](payload)
         }
         ws.onopen = () => resolve(ws)
@@ -25,7 +24,6 @@ export default class Signaler {
   }
 
   send(action, payload) {
-    console.log('->', action, payload)
     return this.getWS()
       .then(ws =>
         ws.send(JSON.stringify([action, payload]))

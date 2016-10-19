@@ -5,8 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify -t babelify index.js > public/bundle.js",
-    "start": "budo --port 3000 --live --open index.js -- --debug -t babelify"
+    "build": ". ./env_prod.sh && browserify index.js > public/bundle.js",
+    "start": ". ./env_dev.sh && budo --port 3000 --live --host localhost --open index.js -- --debug"
+  },
+  "browserify": {
+    "transform": [
+      "sassify",
+      "babelify",
+      "envify"
+    ]
   },
   "author": "",
   "license": "MIT",
@@ -19,8 +26,10 @@
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
     "budo": "^9.2.1",
+    "envify": "^3.4.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
+    "sassify": "^2.0.0",
     "simple-peer": "^6.0.7"
   }
 }

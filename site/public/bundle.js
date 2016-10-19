@@ -26773,7 +26773,8 @@ var App = function (_React$Component) {
         return alert('GTFO!!!');
       }
       multiPeer.join('smoky', this.state.username, function (streams) {
-        return _this2.setState({ streams: streams });
+        console.log(stream.getTracks());
+        _this2.setState({ streams: streams });
       });
       this.setState({ joint: true });
     }
@@ -26858,17 +26859,10 @@ var MultiPeer = function () {
   _createClass(MultiPeer, [{
     key: 'join',
     value: function join(channel, username, onStreams) {
-      var _this = this;
-
       this.username = username;
       this.channel = channel;
       this.onStreams = onStreams;
       this.signaler.join(channel, username);
-      this.getLocalStream().then(function (stream) {
-        stream.username = username;
-        _this.streams.push(stream);
-        _this.onStreams(_this.streams);
-      });
     }
   }, {
     key: 'leave',
@@ -26876,43 +26870,40 @@ var MultiPeer = function () {
   }, {
     key: 'createPeer',
     value: function createPeer(username, stream, initiator) {
-      var _this2 = this;
+      var _this = this;
 
       var peer = new _simplePeer2.default(_extends({}, this.peerOpts, {
         stream: stream,
         initiator: initiator
       }));
       peer.on('signal', function (data) {
-        _this2.signaler.signal('smoky', _this2.username, username, data);
+        _this.signaler.signal('smoky', _this.username, username, data);
       });
       peer.on('stream', function (stream) {
-        console.log('stream', stream);
         stream.username = username;
-        _this2.streams.push(stream);
-        _this2.onStreams(_this2.streams);
+        _this.streams.push(stream);
+        _this.onStreams(_this.streams);
       });
       return peer;
     }
   }, {
     key: 'onReceivedPeers',
     value: function onReceivedPeers(usernames) {
-      var _this3 = this;
+      var _this2 = this;
 
-      console.log('onReceivedPeers');
       this.getLocalStream().then(function (stream) {
         usernames.forEach(function (username) {
-          _this3.peers[username] = _this3.createPeer(username, stream, false);
+          _this2.peers[username] = _this2.createPeer(username, stream, false);
         });
       });
     }
   }, {
     key: 'onPeerAdded',
     value: function onPeerAdded(username) {
-      var _this4 = this;
+      var _this3 = this;
 
-      console.log('onPeerAdded');
       this.getLocalStream().then(function (stream) {
-        _this4.peers[username] = _this4.createPeer(username, stream, true);
+        _this3.peers[username] = _this3.createPeer(username, stream, true);
       });
     }
   }, {
@@ -26998,7 +26989,6 @@ var Signaler = function () {
             var event = _data[0];
             var payload = _data[1];
 
-            console.log('<-', event, payload);
             _this.cbs[event](payload);
           };
           ws.onopen = function () {
@@ -27016,7 +27006,6 @@ var Signaler = function () {
   }, {
     key: 'send',
     value: function send(action, payload) {
-      console.log('->', action, payload);
       return this.getWS().then(function (ws) {
         return ws.send(JSON.stringify([action, payload]));
       });

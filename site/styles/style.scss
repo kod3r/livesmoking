@@ -7,20 +7,22 @@ html, body {
   font-weight: 400;
 }
 .stream {
-  .username {
-    font-weight: 300;
-  }
   .user {
     display: inline-block;
     margin-right: 20px;
     background-color: #ddd;
     padding: 20px;
-  }
-  .username {
-    font-size: 20px;
-    margin-top: 0;
-  }
-  .video {
-    width: 200px;
+    cursor: pointer;
+    &.unmuted {
+      background-color: green;
+    }
+    .username {
+      font-weight: 300;
+      font-size: 20px;
+      margin-top: 0;
+    }
+    .video {
+      width: 200px;
+    }
   }
 }

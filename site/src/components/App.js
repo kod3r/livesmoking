@@ -22,7 +22,8 @@ export default class App extends React.Component {
     this.state = {
       username: '',
       joint: false,
-      streams: []
+      streams: [],
+      unmuted: []
     }
   }
 
@@ -37,17 +38,42 @@ export default class App extends React.Component {
     if (this.state.username === 'webkiit') {
       return alert('GTFO!!!')
     }
-    multiPeer.join('smoky', this.state.username, streams =>
+    multiPeer.join('smoky', this.state.username, streams => {
+      streams.map(stream => {
+        stream.getTracks().map(track => {
+          if (track.kind === 'audio' && this.state.unmuted.indexOf(stream.username) === -1) {
+            track.enabled = false
+          }
+        })
+      })
       this.setState({ streams })
-    )
+    })
     this.setState({ joint: true })
+  }
+
+  toggleMute(stream) {
+    stream.getTracks().map(track => {
+      if (track.kind === 'audio') {
+        if (track.enabled) {
+          this.setState({ unmuted: this.state.unmuted.filter(username => username !== stream.username) })
+        } else {
+          this.state.unmuted.push(stream.username)
+          this.setState({ unmuted: this.state.unmuted })
+        }
+        track.enabled = !track.enabled
+      }
+    })
   }
 
   render() {
     return <div className="stream">
       { this.state.joint ?
         this.state.streams.map((stream, i) =>
-          <div key={i} className="user">
+          <div
+            key={i}
+            className={'user' + (this.state.unmuted.indexOf(stream.username) > -1 ? ' unmuted' : '')}
+            onClick={() => this.toggleMute(stream)}
+          >
             <h2 className="username">{ stream.username }</h2>
             <video
               className="video"

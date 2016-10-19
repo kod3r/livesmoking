@@ -1,4 +1,4 @@
-coturn:
+turn-server:
   image: bprodoehl/turnserver
   restart: always
   net: host
@@ -8,8 +8,10 @@ coturn:
     - "3478:3478/udp"
   # environment:
     # SKIP_AUTO_IP: "true"
+
 signal-server:
   build: signal-server
+
 site:
   build: site
   ports:

@@ -6,17 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify -t babelify index.js > public/bundle.js",
-    "watch": "watchify --debug -t babelify index.js -o public/bundle.js",
-    "budo": "budo -- --debug -t babelify index.js -o public/bundle.js",
-    "serve": "serve ."
+    "start": "budo --port 3000 --live --open index.js -- --debug -t babelify"
   },
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "serve": "^1.4.0",
-    "signalhub": "^4.7.4",
-    "simple-peer": "^6.0.7"
-  },
+  "license": "MIT",
+  "dependencies": {},
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-preset-es2015": "^6.16.0",
@@ -27,6 +21,6 @@
     "budo": "^9.2.1",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "watchify": "^3.7.0"
+    "simple-peer": "^6.0.7"
   }
 }

@@ -17,12 +17,6 @@ export default class MultiPeer {
     this.channel = channel
     this.onStreams = onStreams
     this.signaler.join(channel, username)
-    this.getLocalStream()
-      .then(stream => {
-        stream.username = username
-        this.streams.push(stream)
-        this.onStreams(this.streams)
-      })
   }
 
   leave() {

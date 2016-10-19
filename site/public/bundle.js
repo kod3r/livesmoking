@@ -26751,7 +26751,8 @@ var App = function (_React$Component) {
     _this.state = {
       username: '',
       joint: false,
-      streams: []
+      streams: [],
+      unmuted: []
     };
     return _this;
   }
@@ -26773,21 +26774,54 @@ var App = function (_React$Component) {
         return alert('GTFO!!!');
       }
       multiPeer.join('smoky', this.state.username, function (streams) {
-        console.log(stream.getTracks());
+        streams.map(function (stream) {
+          stream.getTracks().map(function (track) {
+            if (track.kind === 'audio' && _this2.state.unmuted.indexOf(stream.username) === -1) {
+              track.enabled = false;
+            }
+          });
+        });
         _this2.setState({ streams: streams });
       });
       this.setState({ joint: true });
     }
   }, {
+    key: 'toggleMute',
+    value: function toggleMute(stream) {
+      var _this3 = this;
+
+      stream.getTracks().map(function (track) {
+        if (track.kind === 'audio') {
+          if (track.enabled) {
+            _this3.setState({ unmuted: _this3.state.unmuted.filter(function (username) {
+                return username !== stream.username;
+              }) });
+          } else {
+            _this3.state.unmuted.push(stream.username);
+            _this3.setState({ unmuted: _this3.state.unmuted });
+          }
+          track.enabled = !track.enabled;
+        }
+      });
+    }
+  }, {
     key: 'render',
     value: function render() {
+      var _this4 = this;
+
       return _react2.default.createElement(
         'div',
         { className: 'stream' },
         this.state.joint ? this.state.streams.map(function (stream, i) {
           return _react2.default.createElement(
             'div',
-            { key: i, className: 'user' },
+            {
+              key: i,
+              className: 'user' + (_this4.state.unmuted.indexOf(stream.username) > -1 ? ' unmuted' : ''),
+              onClick: function onClick() {
+                return _this4.toggleMute(stream);
+              }
+            },
             _react2.default.createElement(
               'h2',
               { className: 'username' },
@@ -27036,5 +27070,5 @@ var Signaler = function () {
 exports.default = Signaler;
 
 },{}],203:[function(require,module,exports){
-module.exports = "html, body {\n  margin: 0;\n  padding: 0; }\n\n* {\n  font-family: Roboto;\n  font-weight: 400; }\n\n.stream .username {\n  font-weight: 300; }\n\n.stream .user {\n  display: inline-block;\n  margin-right: 20px;\n  background-color: #ddd;\n  padding: 20px; }\n\n.stream .username {\n  font-size: 20px;\n  margin-top: 0; }\n\n.stream .video {\n  width: 200px; }\n";
+module.exports = "html, body {\n  margin: 0;\n  padding: 0; }\n\n* {\n  font-family: Roboto;\n  font-weight: 400; }\n\n.stream .user {\n  display: inline-block;\n  margin-right: 20px;\n  background-color: #ddd;\n  padding: 20px;\n  cursor: pointer; }\n  .stream .user.unmuted {\n    background-color: green; }\n  .stream .user .username {\n    font-weight: 300;\n    font-size: 20px;\n    margin-top: 0; }\n  .stream .user .video {\n    width: 200px; }\n";
 },{}]},{},[1]);

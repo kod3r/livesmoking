@@ -8,7 +8,7 @@ const connections = {
   smoky: {}
 }
 
-safeSend(channel, username, event) {
+function safeSend(channel, username, event) {
   if (connections[channel] && connections[channel][username]) {
     connections[channel][username].send(event)
   }

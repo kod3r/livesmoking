@@ -28,7 +28,7 @@ var app = document.createElement('div');
 document.body.appendChild(app);
 _reactDom2.default.render(_react2.default.createElement(_App2.default, null), app);
 
-},{"./src/components/App":199,"./src/shim":201,"./styles/style.scss":203,"react":188,"react-dom":45}],2:[function(require,module,exports){
+},{"./src/components/App":199,"./src/shim":203,"./styles/style.scss":205,"react":188,"react-dom":45}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -26721,6 +26721,14 @@ var _multiPeer = require('../multi-peer');
 
 var _multiPeer2 = _interopRequireDefault(_multiPeer);
 
+var _ConnectionSelector = require('./ConnectionSelector');
+
+var _ConnectionSelector2 = _interopRequireDefault(_ConnectionSelector);
+
+var _Channel = require('./Channel');
+
+var _Channel2 = _interopRequireDefault(_Channel);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26749,31 +26757,20 @@ var App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     _this.state = {
-      username: '',
-      joint: false,
-      streams: [],
-      unmuted: []
+      streams: []
     };
     return _this;
   }
 
   _createClass(App, [{
-    key: 'setUsername',
-    value: function setUsername(e) {
-      if (e.keyCode === 13) {
-        return this.onJoinClicked();
-      }
-      this.setState({ username: e.target.value });
-    }
-  }, {
     key: 'onJoinClicked',
-    value: function onJoinClicked() {
+    value: function onJoinClicked(connection) {
       var _this2 = this;
 
-      if (this.state.username === 'webkiit') {
+      if (connection.username === 'webkiit') {
         return alert('GTFO!!!');
       }
-      multiPeer.join('smoky', this.state.username, function (streams) {
+      multiPeer.join('smoky', connection.username, function (streams) {
         streams.map(function (stream) {
           stream.getTracks().map(function (track) {
             if (track.kind === 'audio' && _this2.state.unmuted.indexOf(stream.username) === -1) {
@@ -26783,22 +26780,76 @@ var App = function (_React$Component) {
         });
         _this2.setState({ streams: streams });
       });
-      this.setState({ joint: true });
+      this.setState(connection);
     }
   }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'stream' },
+        this.state.channel ? _react2.default.createElement(_Channel2.default, {
+          channel: this.props.channel,
+          streams: this.state.streams }) : _react2.default.createElement(_ConnectionSelector2.default, {
+          onJoinClicked: this.onJoinClicked.bind(this) })
+      );
+    }
+  }]);
+
+  return App;
+}(_react2.default.Component);
+
+exports.default = App;
+
+},{"../multi-peer":202,"../signaler":204,"./Channel":200,"./ConnectionSelector":201,"react":188}],200:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Channel = function (_React$Component) {
+  _inherits(Channel, _React$Component);
+
+  function Channel(props) {
+    _classCallCheck(this, Channel);
+
+    var _this = _possibleConstructorReturn(this, (Channel.__proto__ || Object.getPrototypeOf(Channel)).call(this, props));
+
+    _this.state = {
+      unmuted: []
+    };
+    return _this;
+  }
+
+  _createClass(Channel, [{
     key: 'toggleMute',
     value: function toggleMute(stream) {
-      var _this3 = this;
+      var _this2 = this;
 
       stream.getTracks().map(function (track) {
         if (track.kind === 'audio') {
           if (track.enabled) {
-            _this3.setState({ unmuted: _this3.state.unmuted.filter(function (username) {
+            _this2.setState({ unmuted: _this2.state.unmuted.filter(function (username) {
                 return username !== stream.username;
               }) });
           } else {
-            _this3.state.unmuted.push(stream.username);
-            _this3.setState({ unmuted: _this3.state.unmuted });
+            _this2.state.unmuted.push(stream.username);
+            _this2.setState({ unmuted: _this2.state.unmuted });
           }
           track.enabled = !track.enabled;
         }
@@ -26807,19 +26858,19 @@ var App = function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _this4 = this;
+      var _this3 = this;
 
       return _react2.default.createElement(
         'div',
-        { className: 'stream' },
-        this.state.joint ? this.state.streams.map(function (stream, i) {
+        { className: 'channel' },
+        this.props.streams.map(function (stream, i) {
           return _react2.default.createElement(
             'div',
             {
               key: i,
-              className: 'user' + (_this4.state.unmuted.indexOf(stream.username) > -1 ? ' unmuted' : ''),
+              className: 'user' + (_this3.state.unmuted.indexOf(stream.username) > -1 ? ' unmuted' : ''),
               onClick: function onClick() {
-                return _this4.toggleMute(stream);
+                return _this3.toggleMute(stream);
               }
             },
             _react2.default.createElement(
@@ -26832,32 +26883,93 @@ var App = function (_React$Component) {
               src: window.URL.createObjectURL(stream),
               autoPlay: true })
           );
-        }) : _react2.default.createElement(
-          'div',
-          { className: 'select-username' },
-          _react2.default.createElement('input', {
-            className: 'input',
-            required: true,
-            placeholder: 'Enter a username',
-            onKeyUp: this.setUsername.bind(this) }),
-          this.state.username && _react2.default.createElement(
-            'button',
-            {
-              className: 'button',
-              onClick: this.onJoinClicked.bind(this) },
-            'Go!'
-          )
+        })
+      );
+    }
+  }]);
+
+  return Channel;
+}(_react2.default.Component);
+
+exports.default = Channel;
+
+},{"react":188}],201:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ConnectionSelector = function (_React$Component) {
+  _inherits(ConnectionSelector, _React$Component);
+
+  function ConnectionSelector(props) {
+    _classCallCheck(this, ConnectionSelector);
+
+    var _this = _possibleConstructorReturn(this, (ConnectionSelector.__proto__ || Object.getPrototypeOf(ConnectionSelector)).call(this, props));
+
+    _this.state = {
+      channel: 'smoky', // @todo un-hardcode
+      username: ''
+    };
+    return _this;
+  }
+
+  _createClass(ConnectionSelector, [{
+    key: 'setUsername',
+    value: function setUsername(e) {
+      if (e.keyCode === 13) {
+        return this.onJoinClicked();
+      }
+      this.setState({ username: e.target.value });
+    }
+  }, {
+    key: 'onJoinClicked',
+    value: function onJoinClicked() {
+      this.props.onJoinClicked(this.state);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        'div',
+        { className: 'select-username' },
+        _react2.default.createElement('input', {
+          className: 'input',
+          required: true,
+          placeholder: 'Enter a username',
+          onKeyUp: this.setUsername.bind(this) }),
+        this.state.username && _react2.default.createElement(
+          'button',
+          {
+            className: 'button',
+            onClick: this.onJoinClicked.bind(this) },
+          'Go!'
         )
       );
     }
   }]);
 
-  return App;
+  return ConnectionSelector;
 }(_react2.default.Component);
 
-exports.default = App;
+exports.default = ConnectionSelector;
 
-},{"../multi-peer":200,"../signaler":202,"react":188}],200:[function(require,module,exports){
+},{"react":188}],202:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26989,14 +27101,14 @@ var MultiPeer = function () {
 
 exports.default = MultiPeer;
 
-},{"debug":7,"simple-peer":196}],201:[function(require,module,exports){
+},{"debug":7,"simple-peer":196}],203:[function(require,module,exports){
 "use strict";
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 navigator.getUserMedia.bind(navigator);
 
-},{}],202:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27089,6 +27201,6 @@ var Signaler = function () {
 
 exports.default = Signaler;
 
-},{"debug":7}],203:[function(require,module,exports){
+},{"debug":7}],205:[function(require,module,exports){
 module.exports = "html, body {\n  margin: 0;\n  padding: 0; }\n\n* {\n  font-family: Roboto;\n  font-weight: 400; }\n\n.stream .user {\n  display: inline-block;\n  margin-right: 20px;\n  background-color: #ddd;\n  padding: 20px;\n  cursor: pointer; }\n  .stream .user.unmuted {\n    background-color: green; }\n  .stream .user .username {\n    font-weight: 300;\n    font-size: 20px;\n    margin-top: 0; }\n  .stream .user .video {\n    width: 200px; }\n";
 },{}]},{},[1]);

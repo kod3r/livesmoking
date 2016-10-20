@@ -80,7 +80,7 @@ _reactDom2.default.render(_react2.default.createElement(
   _react2.default.createElement(_App2.default, null)
 ), app);
 
-},{"./src/components/App":208,"./src/shim":212,"./styles/style.scss":214,"history/createBrowserHistory":40,"react":195,"react-dom":52}],2:[function(require,module,exports){
+},{"./src/components/App":208,"./src/shim":213,"./styles/style.scss":215,"history/createBrowserHistory":40,"react":195,"react-dom":52}],2:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -27546,9 +27546,9 @@ var _ConnectionSelector = require('./ConnectionSelector');
 
 var _ConnectionSelector2 = _interopRequireDefault(_ConnectionSelector);
 
-var _Channel = require('./Channel');
+var _Room = require('./Room');
 
-var _Channel2 = _interopRequireDefault(_Channel);
+var _Room2 = _interopRequireDefault(_Room);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27561,18 +27561,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var App = function (_React$Component) {
   _inherits(App, _React$Component);
 
-  function App() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
+  function App(props) {
     _classCallCheck(this, App);
 
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
+    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = App.__proto__ || Object.getPrototypeOf(App)).call.apply(_ref, [this].concat(args))), _this), _this.state = {}, _temp), _possibleConstructorReturn(_this, _ret);
+    _this.state = {};
+    _this.onJoinClicked = _this.onJoinClicked.bind(_this);
+    return _this;
   }
 
   _createClass(App, [{
@@ -27580,7 +27576,7 @@ var App = function (_React$Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      this.context.history.listen(function (location, action) {
+      this.context.history.listen(function () {
         _this2.forceUpdate();
       });
     }
@@ -27590,39 +27586,39 @@ var App = function (_React$Component) {
       if (connection.username === 'webkiit') {
         return alert('GTFO!!!');
       }
-      var channel = connection.channel;
+      var room = connection.room;
       var username = connection.username;
 
-      this.context.history.push('/channel/' + channel + '/' + username);
+      return this.context.history.push('/room/' + room + '/' + username);
     }
   }, {
     key: 'renderPage',
     value: function renderPage() {
       var urlSegments = this.context.history.location.pathname.split('/');
       urlSegments.shift();
-      if (urlSegments[0] === "") {
-        return _react2.default.createElement(_ConnectionSelector2.default, {
-          onJoinClicked: this.onJoinClicked.bind(this) });
+      if (urlSegments[0] === '') {
+        return _react2.default.createElement(_ConnectionSelector2.default, { onJoinClicked: this.onJoinClicked });
       }
       switch (urlSegments.shift()) {
-        case 'channel':
-          var _urlSegments = _slicedToArray(urlSegments, 2);
+        case 'room':
+          {
+            var _urlSegments = _slicedToArray(urlSegments, 2);
 
-          var channel = _urlSegments[0];
-          var username = _urlSegments[1];
+            var room = _urlSegments[0];
+            var username = _urlSegments[1];
 
-          if (!username) {
-            return _react2.default.createElement(_ConnectionSelector2.default, {
-              channel: channel,
-              onJoinClicked: this.onJoinClicked.bind(this) });
+            if (!username) {
+              return _react2.default.createElement(_ConnectionSelector2.default, { room: room, onJoinClicked: this.onJoinClicked });
+            }
+            if (room && username) {
+              return _react2.default.createElement(_Room2.default, { room: room, username: username });
+            }
+            break;
           }
-          if (channel && username) {
-            return _react2.default.createElement(_Channel2.default, {
-              channel: channel,
-              username: username });
-          }
-          break;
+        default:
+          return null;
       }
+      return null;
     }
   }, {
     key: 'render',
@@ -27641,28 +27637,23 @@ var App = function (_React$Component) {
 App.contextTypes = {
   history: _react2.default.PropTypes.object
 };
+
 exports.default = App;
 
-},{"./Channel":209,"./ConnectionSelector":210,"react":195}],209:[function(require,module,exports){
+},{"./ConnectionSelector":210,"./Room":211,"react":195}],209:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
-
-var _signaler = require('../signaler');
-
-var _signaler2 = _interopRequireDefault(_signaler);
-
-var _multiPeer = require('../multi-peer');
-
-var _multiPeer2 = _interopRequireDefault(_multiPeer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27672,149 +27663,118 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var peerOpts = {
-  config: {
-    iceServers: [{
-      urls: "turn:148.251.12.99:3478"
-    }]
-  }
-};
+var Chat = function (_React$Component) {
+  _inherits(Chat, _React$Component);
 
-var signaler = new _signaler2.default("wss://livesmoking.koenschmeets.nl/signals");
-var multiPeer = new _multiPeer2.default(signaler, peerOpts);
+  function Chat(props) {
+    _classCallCheck(this, Chat);
 
-var Channel = function (_React$Component) {
-  _inherits(Channel, _React$Component);
-
-  function Channel(props) {
-    _classCallCheck(this, Channel);
-
-    var _this = _possibleConstructorReturn(this, (Channel.__proto__ || Object.getPrototypeOf(Channel)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (Chat.__proto__ || Object.getPrototypeOf(Chat)).call(this, props));
 
     _this.state = {
-      streams: [],
-      unmuted: []
+      text: ''
     };
+    _this.setText = _this.setText.bind(_this);
+    _this.sendMessage = _this.sendMessage.bind(_this);
     return _this;
   }
 
-  _createClass(Channel, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      var _this2 = this;
-
-      var _props = this.props;
-      var channel = _props.channel;
-      var username = _props.username;
-
-      multiPeer.join(channel, username, function (streams) {
-        streams.map(function (stream) {
-          stream.getTracks().map(function (track) {
-            if (track.kind === 'audio' && _this2.state.unmuted.indexOf(stream.username) === -1) {
-              track.enabled = false;
-            }
-          });
-        });
-        _this2.setState({ streams: streams });
+  _createClass(Chat, [{
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate() {
+      this.refs.messages.scrollTop = this.refs.messages.scrollHeight;
+    }
+  }, {
+    key: 'setText',
+    value: function setText(e) {
+      if (e.keyCode === 13) {
+        return this.sendMessage(e.target.value);
+      }
+      return this.setState({
+        text: e.target.value
       });
     }
   }, {
-    key: 'toggleMute',
-    value: function toggleMute(stream) {
-      var _this3 = this;
-
-      stream.getTracks().map(function (track) {
-        if (track.kind === 'audio') {
-          if (track.enabled) {
-            _this3.setState({ unmuted: _this3.state.unmuted.filter(function (username) {
-                return username !== stream.username;
-              }) });
-          } else {
-            _this3.state.unmuted.push(stream.username);
-            _this3.setState({ unmuted: _this3.state.unmuted });
-          }
-          track.enabled = !track.enabled;
-        }
-      });
+    key: 'sendMessage',
+    value: function sendMessage() {
+      if (this.state.text.length === 0) {
+        return alert('Please enter some text first...');
+      }
+      this.props.sendMessage(this.state.text);
+      this.refs.input.value = '';
+      this.setState({ text: '' });
     }
   }, {
     key: 'render',
     value: function render() {
-      var _this4 = this;
-
-      var channel = this.props.channel;
-
-      var streams = this.state.streams;
-      if (streams.length === 0) {
-        return _react2.default.createElement(
-          'div',
-          { className: 'channel' },
-          _react2.default.createElement(
-            'div',
-            { className: 'empty-room' },
-            _react2.default.createElement(
-              'h1',
-              null,
-              'No smokers in this room...'
-            ),
-            _react2.default.createElement(
-              'p',
-              null,
-              'It\'s awfully quiet in here, invite some others to have a virtual smoke with you by sharing the link below...',
-              _react2.default.createElement('br', null),
-              _react2.default.createElement('br', null),
-              _react2.default.createElement(
-                'span',
-                { className: 'link' },
-                window.location.origin + '/channel/' + channel
-              )
-            )
-          )
-        );
-      }
       return _react2.default.createElement(
         'div',
-        { className: 'channel' },
+        { className: 'chat' },
+        _react2.default.createElement(
+          'h2',
+          { className: 'title' },
+          'Chat with the others...'
+        ),
         _react2.default.createElement(
           'div',
-          { className: 'streams' },
-          streams.map(function (stream, i) {
+          { ref: 'messages', className: 'message-list' },
+          this.props.messages.map(function (message, i) {
+            var _message = _slicedToArray(message, 2);
+
+            var username = _message[0];
+            var text = _message[1];
+
             return _react2.default.createElement(
               'div',
-              {
-                key: i,
-                className: 'user' + (_this4.state.unmuted.indexOf(stream.username) > -1 ? ' unmuted' : ''),
-                onClick: function onClick() {
-                  return _this4.toggleMute(stream);
-                }
-              },
+              { key: i, className: 'message' + (i % 2 === 0 ? ' odd' : '') },
               _react2.default.createElement(
-                'h2',
+                'span',
                 { className: 'username' },
-                stream.username
+                username,
+                ':'
               ),
-              _react2.default.createElement('video', {
-                className: 'video',
-                src: window.URL.createObjectURL(stream),
-                autoPlay: true })
+              _react2.default.createElement(
+                'span',
+                { className: 'text' },
+                text
+              )
             );
           })
         ),
         _react2.default.createElement(
           'div',
-          { className: 'chat' },
-          'Chattie'
+          { className: 'composer' },
+          _react2.default.createElement('input', {
+            ref: 'input',
+            autoFocus: true,
+            className: 'text',
+            onKeyUp: this.setText,
+            placeholder: 'Type a message...'
+          }),
+          _react2.default.createElement(
+            'button',
+            {
+              className: 'send',
+              onClick: this.sendMessage
+            },
+            'Send'
+          )
         )
       );
     }
   }]);
 
-  return Channel;
+  return Chat;
 }(_react2.default.Component);
 
-exports.default = Channel;
+Chat.propTypes = {
+  messages: _react2.default.PropTypes.array,
+  sendMessage: _react2.default.PropTypes.func
+};
 
-},{"../multi-peer":211,"../signaler":213,"react":195}],210:[function(require,module,exports){
+exports.default = Chat;
+
+},{"react":195}],210:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27844,24 +27804,26 @@ var ConnectionSelector = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (ConnectionSelector.__proto__ || Object.getPrototypeOf(ConnectionSelector)).call(this, props));
 
     _this.state = {
-      channel: _this.props.channel || 'smoky', // @todo un-hardcode
+      room: _this.props.room || 'smoky', // @todo un-hardcode
       username: ''
     };
+    _this.onJoinClicked = _this.onJoinClicked.bind(_this);
+    _this.setUsername = _this.setUsername.bind(_this);
     return _this;
   }
 
   _createClass(ConnectionSelector, [{
+    key: 'onJoinClicked',
+    value: function onJoinClicked() {
+      this.props.onJoinClicked(this.state);
+    }
+  }, {
     key: 'setUsername',
     value: function setUsername(e) {
       if (e.keyCode === 13) {
         return this.onJoinClicked();
       }
-      this.setState({ username: e.target.value });
-    }
-  }, {
-    key: 'onJoinClicked',
-    value: function onJoinClicked() {
-      this.props.onJoinClicked(this.state);
+      return this.setState({ username: e.target.value });
     }
   }, {
     key: 'render',
@@ -27874,12 +27836,14 @@ var ConnectionSelector = function (_React$Component) {
           required: true,
           autoFocus: true,
           placeholder: 'Enter a username',
-          onKeyUp: this.setUsername.bind(this) }),
+          onKeyUp: this.setUsername
+        }),
         this.state.username && _react2.default.createElement(
           'button',
           {
             className: 'go',
-            onClick: this.onJoinClicked.bind(this) },
+            onClick: this.onJoinClicked
+          },
           'Go! / \u23CE'
         )
       );
@@ -27889,9 +27853,215 @@ var ConnectionSelector = function (_React$Component) {
   return ConnectionSelector;
 }(_react2.default.Component);
 
+ConnectionSelector.propTypes = {
+  room: _react2.default.PropTypes.string,
+  onJoinClicked: _react2.default.PropTypes.func
+};
+
 exports.default = ConnectionSelector;
 
 },{"react":195}],211:[function(require,module,exports){
+(function (Buffer){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _signaler = require('../signaler');
+
+var _signaler2 = _interopRequireDefault(_signaler);
+
+var _multiPeer = require('../multi-peer');
+
+var _multiPeer2 = _interopRequireDefault(_multiPeer);
+
+var _Chat = require('./Chat');
+
+var _Chat2 = _interopRequireDefault(_Chat);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var peerOpts = {
+  config: {
+    iceServers: [{
+      urls: "turn:148.251.12.99:3478"
+    }]
+  }
+};
+
+var signaler = new _signaler2.default("wss://livesmoking.koenschmeets.nl/signals");
+var multiPeer = new _multiPeer2.default(signaler, peerOpts);
+
+var Room = function (_React$Component) {
+  _inherits(Room, _React$Component);
+
+  function Room(props) {
+    _classCallCheck(this, Room);
+
+    var _this = _possibleConstructorReturn(this, (Room.__proto__ || Object.getPrototypeOf(Room)).call(this, props));
+
+    _this.state = {
+      users: [],
+      unmuted: [],
+      messages: []
+    };
+    _this.sendMessage = _this.sendMessage.bind(_this);
+    return _this;
+  }
+
+  _createClass(Room, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      var _props = this.props;
+      var room = _props.room;
+      var username = _props.username;
+
+      multiPeer.join(room, username, function (users) {
+        users.forEach(function (user) {
+          user.stream.getTracks().forEach(function (track) {
+            if (track.kind === 'audio' && _this2.state.unmuted.indexOf(user.username) === -1) {
+              track.enabled = false; // eslint-disable-line no-param-reassign
+            }
+          });
+        });
+        _this2.setState({ users: users });
+      }, function (data) {
+        var message = JSON.parse(data.toString());
+        _this2.state.messages.push(message);
+        _this2.setState({ messages: _this2.state.messages });
+      });
+    }
+  }, {
+    key: 'toggleMute',
+    value: function toggleMute(user) {
+      var _this3 = this;
+
+      user.stream.getTracks().forEach(function (track) {
+        if (track.kind === 'audio') {
+          if (track.enabled) {
+            _this3.setState({
+              unmuted: _this3.state.unmuted.filter(function (unmutedUsername) {
+                return unmutedUsername !== user.username;
+              })
+            });
+          } else {
+            _this3.state.unmuted.push(user.username);
+            _this3.setState({ unmuted: _this3.state.unmuted });
+          }
+          track.enabled = !track.enabled; // eslint-disable-line no-param-reassign
+        }
+      });
+    }
+  }, {
+    key: 'sendMessage',
+    value: function sendMessage(text) {
+      var message = [this.props.username, text];
+      this.state.messages.push(message);
+      this.setState({ messages: this.state.messages });
+      this.state.users.forEach(function (user) {
+        user.peer.send(new Buffer(JSON.stringify(message)));
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this4 = this;
+
+      var room = this.props.room;
+
+      var users = this.state.users;
+      if (users.length === 0) {
+        return _react2.default.createElement(
+          'div',
+          { className: 'room' },
+          _react2.default.createElement(
+            'div',
+            { className: 'empty' },
+            _react2.default.createElement(
+              'h1',
+              null,
+              'No smokers in this room...'
+            ),
+            _react2.default.createElement(
+              'p',
+              null,
+              'It\'s awfully quiet in here,',
+              'invite some others to have a virtual smoke with you by sharing the link below...',
+              _react2.default.createElement('br', null),
+              _react2.default.createElement('br', null),
+              _react2.default.createElement(
+                'span',
+                { className: 'link' },
+                window.location.origin + '/room/' + room
+              )
+            )
+          )
+        );
+      }
+      return _react2.default.createElement(
+        'div',
+        { className: 'room' },
+        _react2.default.createElement(
+          'div',
+          { className: 'users' },
+          users.map(function (user, i) {
+            return _react2.default.createElement(
+              'div',
+              {
+                key: i,
+                className: 'user' + (_this4.state.unmuted.indexOf(user.username) > -1 ? ' unmuted' : ''),
+                onClick: function onClick() {
+                  return _this4.toggleMute(user);
+                }
+              },
+              _react2.default.createElement(
+                'h2',
+                { className: 'username' },
+                user.username
+              ),
+              _react2.default.createElement('video', {
+                className: 'video',
+                src: window.URL.createObjectURL(user.stream),
+                autoPlay: true
+              })
+            );
+          })
+        ),
+        _react2.default.createElement(_Chat2.default, {
+          messages: this.state.messages,
+          sendMessage: this.sendMessage
+        })
+      );
+    }
+  }]);
+
+  return Room;
+}(_react2.default.Component);
+
+Room.propTypes = {
+  room: _react2.default.PropTypes.string,
+  username: _react2.default.PropTypes.string
+};
+
+exports.default = Room;
+
+}).call(this,require("buffer").Buffer)
+},{"../multi-peer":212,"../signaler":214,"./Chat":209,"buffer":5,"react":195}],212:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27926,92 +28096,108 @@ var MultiPeer = function () {
     this.signaler.on('leave', this.onPeerRemoved.bind(this));
     this.signaler.on('signal', this.onSignal.bind(this));
     this.peerOpts = peerOpts;
-    this.peers = {};
+    this.users = {};
     this.streams = [];
   }
 
   _createClass(MultiPeer, [{
     key: 'join',
-    value: function join(channel, username, onStreams) {
+    value: function join(channel, username, onUsers, onData) {
       log('join', channel, username);
       this.username = username;
       this.channel = channel;
-      this.onStreams = onStreams;
+      this.onUsers = onUsers;
+      this.onData = onData;
       this.signaler.join(channel, username);
     }
   }, {
-    key: 'leave',
-    value: function leave() {}
+    key: 'getUsers',
+    value: function getUsers() {
+      var _this = this;
+
+      return Object.keys(this.users).filter(function (username) {
+        return _this.users[username].stream && _this.users[username].stream.active;
+      }).map(function (username) {
+        return _this.users[username];
+      });
+    }
   }, {
     key: 'createPeer',
     value: function createPeer(username, stream, initiator) {
-      var _this = this;
+      var _this2 = this;
 
       var peer = new _simplePeer2.default(_extends({}, this.peerOpts, {
         stream: stream,
         initiator: initiator
       }));
       peer.on('signal', function (data) {
-        _this.signaler.signal('smoky', _this.username, username, data);
+        _this2.signaler.signal('smoky', _this2.username, username, data);
       });
-      peer.on('stream', function (stream) {
-        stream.username = username;
-        _this.streams.push(stream);
-        _this.onStreams(_this.streams);
+      peer.on('data', function (data) {
+        _this2.onData(data);
+      });
+      peer.on('stream', function (peerStream) {
+        _this2.users[username].stream = peerStream;
+        _this2.onUsers(_this2.getUsers());
       });
       return peer;
     }
   }, {
     key: 'onReceivedPeers',
     value: function onReceivedPeers(usernames) {
-      var _this2 = this;
+      var _this3 = this;
 
       log('onReceivedPeers', usernames);
       this.getLocalStream().then(function (stream) {
         usernames.forEach(function (username) {
-          _this2.peers[username] = _this2.createPeer(username, stream, false);
+          if (!_this3.users[username]) {
+            _this3.users[username] = {
+              username: username
+            };
+          }
+          _this3.users[username].peer = _this3.createPeer(username, stream, false);
         });
       });
     }
   }, {
     key: 'onPeerAdded',
     value: function onPeerAdded(username) {
-      var _this3 = this;
+      var _this4 = this;
 
       log('onPeerAdded', username);
       this.getLocalStream().then(function (stream) {
-        _this3.peers[username] = _this3.createPeer(username, stream, true);
+        if (!_this4.users[username]) {
+          _this4.users[username] = {
+            username: username
+          };
+        }
+        _this4.users[username].peer = _this4.createPeer(username, stream, true);
       });
     }
   }, {
     key: 'onPeerRemoved',
     value: function onPeerRemoved(username) {
       log('onPeerRemoved', username);
-      this.peers[username].destroy();
-      delete this.peers[username];
-      this.streams = this.streams.filter(function (stream) {
-        return stream.username !== username;
-      });
-      this.onStreams(this.streams);
+      this.users[username].peer.destroy();
+      delete this.users[username];
+      this.onUsers(this.getUsers());
     }
   }, {
     key: 'onSignal',
     value: function onSignal(data) {
-      if (this.peers[data.origin]) {
-        this.peers[data.origin].signal(data.signal);
+      if ({}.hasOwnProperty.call(this.users, data.origin)) {
+        this.users[data.origin].peer.signal(data.signal);
       }
     }
   }, {
     key: 'getLocalStream',
     value: function getLocalStream() {
       if (!this.stream) {
-        this.stream = new Promise(function (resolve) {
-          window.navigator.getUserMedia({
-            video: true,
-            audio: true
-          }, resolve, function (err) {
-            alert('Could not get webcam / audio stream');
-          });
+        this.stream = window.navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true
+        }).catch(function () {
+          alert('Could not get webcam / audio stream');
         });
       }
       return this.stream;
@@ -28023,14 +28209,14 @@ var MultiPeer = function () {
 
 exports.default = MultiPeer;
 
-},{"debug":7,"simple-peer":204}],212:[function(require,module,exports){
+},{"debug":7,"simple-peer":204}],213:[function(require,module,exports){
 "use strict";
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 navigator.getUserMedia.bind(navigator);
 
-},{}],213:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28066,7 +28252,7 @@ var Signaler = function () {
 
       if (!this.ws) {
         this.ws = new Promise(function (resolve) {
-          var ws = new WebSocket(_this.url);
+          var ws = new window.WebSocket(_this.url);
           ws.onmessage = function (e) {
             var data = JSON.parse(e.data);
 
@@ -28101,20 +28287,12 @@ var Signaler = function () {
   }, {
     key: 'join',
     value: function join(channel, username) {
-      return this.send('join', {
-        channel: channel,
-        username: username
-      });
+      return this.send('join', [channel, username]);
     }
   }, {
     key: 'signal',
     value: function signal(channel, origin, username, _signal) {
-      return this.send('signal', {
-        channel: channel,
-        origin: origin,
-        username: username,
-        signal: _signal
-      });
+      return this.send('signal', [channel, origin, username, _signal]);
     }
   }]);
 
@@ -28123,6 +28301,6 @@ var Signaler = function () {
 
 exports.default = Signaler;
 
-},{"debug":7}],214:[function(require,module,exports){
-module.exports = "html, body {\n  margin: 0;\n  padding: 0;\n  font-size: 16px; }\n\n* {\n  font-family: Roboto;\n  font-weight: 400; }\n\ninput {\n  outline: none; }\n\n.app .channel .empty-room {\n  text-align: center;\n  margin: auto;\n  width: 500px; }\n  .app .channel .empty-room .link {\n    display: inline-block;\n    font-size: 18px;\n    background: #ddd;\n    padding: 20px;\n    width: 350px; }\n\n.app .channel .streams {\n  background-image: url(https://c3.staticflickr.com/7/6209/6065516802_d88a6d3016_b.jpg);\n  background-size: cover;\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  width: 70%;\n  overflow-y: scroll; }\n  .app .channel .streams .user {\n    display: inline-block;\n    margin-right: 20px;\n    background-color: #ddd;\n    padding: 20px;\n    cursor: pointer; }\n    .app .channel .streams .user.unmuted {\n      background-color: #96ff00; }\n    .app .channel .streams .user .username {\n      font-weight: 300;\n      font-size: 20px;\n      margin-top: 0; }\n    .app .channel .streams .user .video {\n      width: 200px; }\n\n.app .channel .chat {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  width: 30%;\n  display: inline-block;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.3); }\n\n.app .connection-selector {\n  width: 500px;\n  margin: auto; }\n  .app .connection-selector .username {\n    width: 100%;\n    padding: 10px;\n    font-size: 26px;\n    box-sizing: border-box;\n    border: 3px solid #ddd;\n    box-shadow: none !important;\n    margin-top: 20px; }\n    .app .connection-selector .username:focus {\n      border-color: #ccc; }\n  .app .connection-selector .go {\n    width: 100%;\n    border-radius: 10px;\n    margin-top: 20px;\n    padding: 10px;\n    font-size: 26px;\n    background: #71af1a;\n    color: #fff;\n    border: none; }\n";
+},{"debug":7}],215:[function(require,module,exports){
+module.exports = "html, body {\n  margin: 0;\n  padding: 0;\n  font-size: 16px; }\n\n* {\n  font-family: Roboto;\n  font-weight: 400;\n  box-sizing: border-box; }\n\ninput {\n  outline: none; }\n\n.app .room .empty {\n  text-align: center;\n  margin: auto;\n  width: 500px; }\n  .app .room .empty .link {\n    display: inline-block;\n    font-size: 18px;\n    background: #ddd;\n    padding: 20px;\n    width: 350px; }\n\n.app .room .users {\n  background-image: url(https://c5.staticflickr.com/5/4057/4532507884_1999b09044_b.jpg);\n  background-size: cover;\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 300px;\n  overflow-y: auto; }\n  .app .room .users .user {\n    display: inline-block;\n    margin-right: 20px;\n    background-color: #fff;\n    padding: 20px;\n    cursor: pointer; }\n    .app .room .users .user.unmuted {\n      background-color: #71af1a; }\n    .app .room .users .user .username {\n      font-weight: 300;\n      font-size: 20px;\n      margin-top: 0; }\n    .app .room .users .user .video {\n      width: 200px; }\n\n.app .room .chat {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  width: 300px;\n  background: #000;\n  color: #fff; }\n  .app .room .chat .title {\n    margin: 0;\n    padding: 15px;\n    font-size: 20px;\n    line-height: 20px;\n    background: #ff0052;\n    font-weight: 300; }\n  .app .room .chat .message-list {\n    position: absolute;\n    top: 50px;\n    bottom: 50px;\n    right: 0;\n    width: 300px;\n    overflow-y: auto; }\n    .app .room .chat .message-list .message {\n      padding: 10px; }\n      .app .room .chat .message-list .message.odd {\n        background: #222; }\n      .app .room .chat .message-list .message .username {\n        font-weight: 300;\n        font-size: 16px;\n        margin-right: 10px; }\n      .app .room .chat .message-list .message .message {\n        font-weight: 300;\n        font-size: 16px;\n        margin-bottom: 10px; }\n  .app .room .chat .composer {\n    position: absolute;\n    bottom: 0;\n    right: 0;\n    left: 0;\n    width: 300px;\n    height: 50px; }\n    .app .room .chat .composer .text {\n      display: inline-block;\n      height: 50px;\n      width: 220px;\n      border: 0;\n      font-size: 16px;\n      padding: 10px; }\n    .app .room .chat .composer .send {\n      display: inline-block;\n      width: 80px;\n      height: 50px;\n      font-size: 16px;\n      background: #71af1a;\n      color: #fff;\n      border: none; }\n\n.app .connection-selector {\n  width: 500px;\n  margin: auto; }\n  .app .connection-selector .username {\n    width: 100%;\n    padding: 10px;\n    font-size: 26px;\n    border: 3px solid #ddd;\n    box-shadow: none !important;\n    margin-top: 20px; }\n    .app .connection-selector .username:focus {\n      border-color: #ccc; }\n  .app .connection-selector .go {\n    width: 100%;\n    border-radius: 10px;\n    margin-top: 20px;\n    padding: 10px;\n    font-size: 26px;\n    background: #71af1a;\n    color: #fff;\n    border: none; }\n";
 },{}]},{},[1]);

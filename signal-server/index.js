@@ -22,43 +22,49 @@ wss.on('connection', ws => {
   ws.on('message', message => {
     const [action, data] = JSON.parse(message)
     switch (action) {
-      case 'join':
+      case 'join': {
+        const [channel, username] = data
+
         // check if the channel exists
-        if (!connections[data.channel]) {
+        if (!connections[channel]) {
           return
         }
 
         // save the channel / username on the connection object
         // for easy disconnecting later
-        ws._channelName = data.channel
-        ws._userName = data.username
+        ws._channelName = channel
+        ws._userName = username
 
         // get the current users in the channel
-        const others = Object.keys(connections[data.channel])
+        const others = Object.keys(connections[channel])
 
         // store the connection
-        connections[data.channel][data.username] = ws
+        connections[channel][username] = ws
 
-        log('sending peers event to ' + data.username + ' in channel ' + data.channel)
+        log(`sending peers event to ${username} in channel ${channel}`)
         const peersEvt = JSON.stringify(['peers', others])
         ws.send(peersEvt)
 
         // broadcast join event to others
-        others.forEach(username => {
-          const joinEvt = JSON.stringify(['join', data.username])
-          log('sending join event to ' + username + ' in channel ' + data.channel)
-          safeSend(data.channel, username, joinEvt)
+        others.forEach(other => {
+          const joinEvt = JSON.stringify(['join', username])
+          log(`sending join event to ${other} in channel ${channel}`)
+          safeSend(channel, other, joinEvt)
         })
         break
-      case 'signal':
+      }
+      case 'signal': {
+        const [channel, origin, username, signal] = data
         const payload = {
-          origin: data.origin,
-          signal: data.signal
+          channel,
+          origin,
+          signal
         }
         const signalEvt = JSON.stringify(['signal', payload])
-        log('sending signal event to ' + data.username + ' in channel ' + data.channel)
-        safeSend(data.channel, data.username, signalEvt)
+        log(`sending signal event from ${origin} to ${username} in channel ${channel}`)
+        safeSend(channel, username, signalEvt)
         break
+      }
     }
   })
   ws.on('close', () => {
@@ -69,10 +75,11 @@ wss.on('connection', ws => {
       return
     }
     delete connections[channel][username]
-    Object.keys(connections[channel]).forEach(activeUsername => {
-      // log('sending leave event to ' + activeUsername)
-      // const leaveEvt = JSON.stringify(['leave', username])
-      // safeSend(channel, activeUsername, leaveEvt)
+    // send leave event to other users
+    Object.keys(connections[channel]).forEach(other => {
+      log('sending leave event to ' + other)
+      const leaveEvt = JSON.stringify(['leave', username])
+      safeSend(channel, other, leaveEvt)
     })
   })
 })

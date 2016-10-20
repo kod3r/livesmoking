@@ -37,18 +37,18 @@ export default class Signaler {
   }
 
   join(channel, username) {
-    return this.send('join', {
+    return this.send('join', [
       channel,
       username
-    })
+    ])
   }
 
   signal(channel, origin, username, signal) {
-    return this.send('signal', {
+    return this.send('signal', [
       channel,
       origin,
       username,
       signal
-    })
+    ])
   }
 }

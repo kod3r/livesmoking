@@ -11,16 +11,23 @@ export default class MultiPeer {
     this.signaler.on('leave', this.onPeerRemoved.bind(this))
     this.signaler.on('signal', this.onSignal.bind(this))
     this.peerOpts = peerOpts
-    this.peers = {}
+    this.users = {}
     this.streams = []
   }
 
-  join(channel, username, onStreams) {
+  join(channel, username, onUsers, onData) {
     log('join', channel, username)
     this.username = username
     this.channel = channel
-    this.onStreams = onStreams
+    this.onUsers = onUsers
+    this.onData = onData
     this.signaler.join(channel, username)
+  }
+
+  getUsers() {
+    return Object.keys(this.users)
+      .filter(username => this.users[username].stream && this.users[username].stream.active)
+      .map(username => this.users[username])
   }
 
   createPeer(username, stream, initiator) {
@@ -32,10 +39,12 @@ export default class MultiPeer {
     peer.on('signal', data => {
       this.signaler.signal('smoky', this.username, username, data)
     })
-    peer.on('stream', remoteStream => {
-      remoteStream.username = username // eslint-disable-line no-param-reassign
-      this.streams.push(remoteStream)
-      this.onStreams(this.streams)
+    peer.on('data', data => {
+      this.onData(data)
+    })
+    peer.on('stream', peerStream => {
+      this.users[username].stream = peerStream
+      this.onUsers(this.getUsers())
     })
     return peer
   }
@@ -45,7 +54,12 @@ export default class MultiPeer {
     this.getLocalStream()
       .then(stream => {
         usernames.forEach(username => {
-          this.peers[username] = this.createPeer(username, stream, false)
+          if (!this.users[username]) {
+            this.users[username] = {
+              username
+            }
+          }
+          this.users[username].peer = this.createPeer(username, stream, false)
         })
       })
   }
@@ -54,33 +68,36 @@ export default class MultiPeer {
     log('onPeerAdded', username)
     this.getLocalStream()
       .then(stream => {
-        this.peers[username] = this.createPeer(username, stream, true)
+        if (!this.users[username]) {
+          this.users[username] = {
+            username
+          }
+        }
+        this.users[username].peer = this.createPeer(username, stream, true)
       })
   }
 
   onPeerRemoved(username) {
     log('onPeerRemoved', username)
-    this.peers[username].destroy()
-    delete this.peers[username]
-    this.streams = this.streams.filter(stream => stream.username !== username)
-    this.onStreams(this.streams)
+    this.users[username].peer.destroy()
+    delete this.users[username]
+    this.onUsers(this.getUsers())
   }
 
   onSignal(data) {
-    if (this.peers[data.origin]) {
-      this.peers[data.origin].signal(data.signal)
+    if ({}.hasOwnProperty.call(this.users, data.origin)) {
+      this.users[data.origin].peer.signal(data.signal)
     }
   }
 
   getLocalStream() {
     if (!this.stream) {
-      this.stream = new Promise(resolve => {
-        window.navigator.getUserMedia({
-          video: true,
-          audio: true
-        }, resolve, () => {
-          alert('Could not get webcam / audio stream')
-        })
+      this.stream = window.navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      })
+      .catch(() => {
+        alert('Could not get webcam / audio stream')
       })
     }
     return this.stream

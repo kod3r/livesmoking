@@ -7,6 +7,7 @@ html, body {
 * {
   font-family: Roboto;
   font-weight: 400;
+  box-sizing: border-box;
 }
 
 input {
@@ -27,15 +28,15 @@ input {
         width: 350px;
       }
     }
-    .streams {
-      background-image: url(https://c3.staticflickr.com/7/6209/6065516802_d88a6d3016_b.jpg);
+    .users {
+      background-image: url(https://c5.staticflickr.com/5/4057/4532507884_1999b09044_b.jpg);
       background-size: cover;
       position: absolute;
       top: 0;
       left: 0;
       bottom: 0;
-      width: 70%;
-      overflow-y: scroll;
+      right: 300px;
+      overflow-y: auto;
       .user {
         display: inline-block;
         margin-right: 20px;
@@ -43,7 +44,7 @@ input {
         padding: 20px;
         cursor: pointer;
         &.unmuted {
-          background-color: #96ff00;
+          background-color: #71af1a;
         }
         .username {
           font-weight: 300;
@@ -60,15 +61,66 @@ input {
       top: 0;
       right: 0;
       bottom: 0;
-      width: 30%;
-      display: inline-block;
-      box-sizing: border-box;
-      height: 100%;
+      width: 300px;
       background: #000;
       color: #fff;
-      font-size: 20px;
-      font-weight: 300;
-      padding: 20px;
+      .title {
+        margin: 0;
+        padding: 15px;
+        font-size: 20px;
+        line-height: 20px;
+        background: #ff0052;
+        font-weight: 300;
+      }
+      .message-list {
+        position: absolute;
+        top: 50px;
+        bottom: 50px;
+        right: 0;
+        width: 300px;
+        overflow-y: auto;
+        .message {
+          padding: 10px;
+          &.odd {
+            background: #222;
+          }
+          .username {
+            font-weight: 300;
+            font-size: 16px;
+            margin-right: 10px;
+          }
+          .message {
+            font-weight: 300;
+            font-size: 16px;
+            margin-bottom: 10px;
+          }
+        }
+      }
+      .composer {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        width: 300px;
+        height: 50px;
+        .text {
+          display: inline-block;
+          height: 50px;
+          width: 220px;
+          border: 0;
+          font-size: 16px;
+          padding: 10px
+        }
+        .send {
+          display: inline-block;
+          width: 80px;
+          height: 50px;
+          font-size: 16px;
+          background: #71af1a;
+          color: #fff;
+          border: none;
+        }
+      }
     }
   }
   .connection-selector {
@@ -78,7 +130,6 @@ input {
       width: 100%;
       padding: 10px;
       font-size: 26px;
-      box-sizing: border-box;
       border: 3px solid #ddd;
       box-shadow: none !important;
       margin-top: 20px;

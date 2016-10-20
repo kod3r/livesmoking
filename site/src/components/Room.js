@@ -1,6 +1,7 @@
 import React from 'react'
 import Signaler from '../signaler'
 import MultiPeer from '../multi-peer'
+import Chat from './Chat'
 
 const peerOpts = {
   config: {
@@ -19,35 +20,41 @@ class Room extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      streams: [],
-      unmuted: []
+      users: [],
+      unmuted: [],
+      messages: []
     }
+    this.sendMessage = this.sendMessage.bind(this)
   }
 
   componentDidMount() {
     const { room, username } = this.props
-    multiPeer.join(room, username, streams => {
-      streams.forEach(stream => {
-        stream.getTracks().forEach(track => {
-          if (track.kind === 'audio' && this.state.unmuted.indexOf(stream.username) === -1) {
+    multiPeer.join(room, username, users => {
+      users.forEach(user => {
+        user.stream.getTracks().forEach(track => {
+          if (track.kind === 'audio' && this.state.unmuted.indexOf(user.username) === -1) {
             track.enabled = false // eslint-disable-line no-param-reassign
           }
         })
       })
-      this.setState({ streams })
+      this.setState({ users })
+    }, data => {
+      const message = JSON.parse(data.toString())
+      this.state.messages.push(message)
+      this.setState({ messages: this.state.messages })
     })
   }
 
-  toggleMute(stream) {
-    stream.getTracks().forEach(track => {
+  toggleMute(user) {
+    user.stream.getTracks().forEach(track => {
       if (track.kind === 'audio') {
         if (track.enabled) {
           this.setState({
             unmuted: this.state.unmuted
-              .filter(username => username !== stream.username)
+              .filter(unmutedUsername => unmutedUsername !== user.username)
           })
         } else {
-          this.state.unmuted.push(stream.username)
+          this.state.unmuted.push(user.username)
           this.setState({ unmuted: this.state.unmuted })
         }
         track.enabled = !track.enabled // eslint-disable-line no-param-reassign
@@ -55,10 +62,19 @@ class Room extends React.Component {
     })
   }
 
+  sendMessage(text) {
+    const message = [this.props.username, text]
+    this.state.messages.push(message)
+    this.setState({ messages: this.state.messages })
+    this.state.users.forEach(user => {
+      user.peer.send(new Buffer(JSON.stringify(message)))
+    })
+  }
+
   render() {
     const { room } = this.props
-    const streams = this.state.streams
-    if (streams.length === 0) {
+    const users = this.state.users
+    if (users.length === 0) {
       return (
         <div className="room">
           <div className="empty">
@@ -77,26 +93,28 @@ class Room extends React.Component {
     }
     return (
       <div className="room">
-        <div className="streams">
-          { streams.map((stream, i) =>
-            <a
-              href="#toggle-mute"
-              key={i}
-              className={`user${(this.state.unmuted.indexOf(stream.username) > -1 ? ' unmuted' : '')}`}
-              onClick={() => this.toggleMute(stream)}
-            >
-              <h2 className="username">{ stream.username }</h2>
-              <video
-                className="video"
-                src={window.URL.createObjectURL(stream)}
-                autoPlay
-              />
-            </a>
-          )}
+        <div className="users">
+          { users.map((user, i) => {
+            return (
+              <div
+                key={i}
+                className={`user${(this.state.unmuted.indexOf(user.username) > -1 ? ' unmuted' : '')}`}
+                onClick={() => this.toggleMute(user)}
+              >
+                <h2 className="username">{ user.username }</h2>
+                <video
+                  className="video"
+                  src={window.URL.createObjectURL(user.stream)}
+                  autoPlay
+                />
+              </div>
+            )
+          } ) }
         </div>
-        <div className="chat">
-          Chat with the others...
-        </div>
+        <Chat
+          messages={this.state.messages}
+          sendMessage={this.sendMessage}
+        />
       </div>
     )
   }

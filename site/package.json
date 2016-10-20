@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": ". ./env_prod.sh && browserify index.js > public/bundle.js",
-    "start": ". ./env_dev.sh && budo --port 3000 --live --host localhost --open index.js -- --debug"
+    "start": ". ./env_dev.sh && budo --port 3000 --host localhost --pushstate --live --dir public --open index.js:bundle.js -- --debug",
+    "lint": "eslint src"
   },
   "browserify": {
     "transform": [
@@ -28,6 +29,12 @@
     "budo": "^9.2.1",
     "debug": "^2.2.0",
     "envify": "^3.4.1",
+    "eslint": "^3.8.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.4.1",
+    "history": "^4.3.0",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "sassify": "^2.0.0",

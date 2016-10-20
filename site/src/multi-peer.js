@@ -1,14 +1,15 @@
 import SimplePeer from 'simple-peer'
 import debug from 'debug'
+
 const log = debug('signaler')
 
 export default class MultiPeer {
   constructor(signaler, peerOpts) {
     this.signaler = signaler
-    this.signaler.on('peers', ::this.onReceivedPeers)
-    this.signaler.on('join', ::this.onPeerAdded)
-    this.signaler.on('leave', ::this.onPeerRemoved)
-    this.signaler.on('signal', ::this.onSignal)
+    this.signaler.on('peers', this.onReceivedPeers.bind(this))
+    this.signaler.on('join', this.onPeerAdded.bind(this))
+    this.signaler.on('leave', this.onPeerRemoved.bind(this))
+    this.signaler.on('signal', this.onSignal.bind(this))
     this.peerOpts = peerOpts
     this.peers = {}
     this.streams = []
@@ -22,10 +23,6 @@ export default class MultiPeer {
     this.signaler.join(channel, username)
   }
 
-  leave() {
-
-  }
-
   createPeer(username, stream, initiator) {
     const peer = new SimplePeer({
       ...this.peerOpts,
@@ -35,9 +32,9 @@ export default class MultiPeer {
     peer.on('signal', data => {
       this.signaler.signal('smoky', this.username, username, data)
     })
-    peer.on('stream', stream => {
-      stream.username = username
-      this.streams.push(stream)
+    peer.on('stream', remoteStream => {
+      remoteStream.username = username // eslint-disable-line no-param-reassign
+      this.streams.push(remoteStream)
       this.onStreams(this.streams)
     })
     return peer
@@ -81,7 +78,7 @@ export default class MultiPeer {
         window.navigator.getUserMedia({
           video: true,
           audio: true
-        }, resolve, err => {
+        }, resolve, () => {
           alert('Could not get webcam / audio stream')
         })
       })

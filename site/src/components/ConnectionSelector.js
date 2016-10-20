@@ -1,41 +1,53 @@
 import React from 'react'
 
-export default class ConnectionSelector extends React.Component {
+class ConnectionSelector extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      channel: 'smoky', // @todo un-hardcode
+      room: this.props.room || 'smoky', // @todo un-hardcode
       username: ''
     }
-  }
-
-  setUsername(e) {
-    if (e.keyCode === 13) {
-      return this.onJoinClicked()
-    }
-    this.setState({ username: e.target.value })
+    this.onJoinClicked = this.onJoinClicked.bind(this)
+    this.setUsername = this.setUsername.bind(this)
   }
 
   onJoinClicked() {
     this.props.onJoinClicked(this.state)
   }
 
+  setUsername(e) {
+    if (e.keyCode === 13) {
+      return this.onJoinClicked()
+    }
+    return this.setState({ username: e.target.value })
+  }
+
   render() {
     return (
-      <div className="select-username">
+      <div className="connection-selector">
         <input
-          className="input"
+          className="username"
           required
+          autoFocus
           placeholder="Enter a username"
-          onKeyUp={::this.setUsername} />
+          onKeyUp={this.setUsername}
+        />
         { this.state.username && (
         <button
-          className="button"
-          onClick={::this.onJoinClicked}>
-          Go!
+          className="go"
+          onClick={this.onJoinClicked}
+        >
+          Go! / ⏎
         </button>
         ) }
       </div>
     )
   }
 }
+
+ConnectionSelector.propTypes = {
+  room: React.PropTypes.string,
+  onJoinClicked: React.PropTypes.func
+}
+
+export default ConnectionSelector

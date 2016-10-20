@@ -1,5 +1,8 @@
-var WebSocketServer = require('uws').Server
-var wss = new WebSocketServer({
+const WebSocketServer = require('uws').Server
+const debug = require('debug')
+const log = debug('signal-server')
+
+const wss = new WebSocketServer({
   port: process.env.SIGNAL_SERVER_PORT || 3001
 })
 
@@ -15,7 +18,7 @@ function safeSend(channel, username, event) {
 }
 
 wss.on('connection', ws => {
-  console.log('new connection')
+  log('new connection')
   ws.on('message', message => {
     const [action, data] = JSON.parse(message)
     switch (action) {
@@ -31,17 +34,19 @@ wss.on('connection', ws => {
         ws._userName = data.username
 
         // get the current users in the channel
-        const otherusers = Object.keys(connections[data.channel])
+        const others = Object.keys(connections[data.channel])
 
         // store the connection
         connections[data.channel][data.username] = ws
 
-        const peersEvt = JSON.stringify(['peers', otherusers])
+        log('sending peers event to ' + data.username + ' in channel ' + data.channel)
+        const peersEvt = JSON.stringify(['peers', others])
         ws.send(peersEvt)
 
         // broadcast join event to others
-        otherusers.forEach(username => {
+        others.forEach(username => {
           const joinEvt = JSON.stringify(['join', data.username])
+          log('sending join event to ' + username + ' in channel ' + data.channel)
           safeSend(data.channel, username, joinEvt)
         })
         break
@@ -51,6 +56,7 @@ wss.on('connection', ws => {
           signal: data.signal
         }
         const signalEvt = JSON.stringify(['signal', payload])
+        log('sending signal event to ' + data.username + ' in channel ' + data.channel)
         safeSend(data.channel, data.username, signalEvt)
         break
     }
@@ -59,13 +65,14 @@ wss.on('connection', ws => {
     const channel = ws._channelName
     const username = ws._userName
     if (!connections[channel] || !connections[channel][username]) {
-      console.log(`coulnd't find channel ${channel} or username ${username}`)
+      log(`coulnd't find channel ${channel} or username ${username}`)
       return
     }
     delete connections[channel][username]
     Object.keys(connections[channel]).forEach(activeUsername => {
-      const leaveEvt = JSON.stringify(['leave', username])
-      safeSend(channel, activeUsername, leaveEvt)
+      // log('sending leave event to ' + activeUsername)
+      // const leaveEvt = JSON.stringify(['leave', username])
+      // safeSend(channel, activeUsername, leaveEvt)
     })
   })
 })

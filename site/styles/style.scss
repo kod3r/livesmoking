@@ -1,28 +1,100 @@
 html, body {
   margin: 0;
   padding: 0;
+  font-size: 16px;
 }
+
 * {
   font-family: Roboto;
   font-weight: 400;
 }
-.stream {
-  .user {
-    display: inline-block;
-    margin-right: 20px;
-    background-color: #ddd;
-    padding: 20px;
-    cursor: pointer;
-    &.unmuted {
-      background-color: green;
+
+input {
+  outline: none;
+}
+
+.app {
+  .room {
+    .empty {
+      text-align: center;
+      margin: auto;
+      width: 500px;
+      .link {
+        display: inline-block;
+        font-size: 18px;
+        background: #ddd;
+        padding: 20px;
+        width: 350px;
+      }
     }
-    .username {
-      font-weight: 300;
+    .streams {
+      background-image: url(https://c3.staticflickr.com/7/6209/6065516802_d88a6d3016_b.jpg);
+      background-size: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 70%;
+      overflow-y: scroll;
+      .user {
+        display: inline-block;
+        margin-right: 20px;
+        background-color: #fff;
+        padding: 20px;
+        cursor: pointer;
+        &.unmuted {
+          background-color: #96ff00;
+        }
+        .username {
+          font-weight: 300;
+          font-size: 20px;
+          margin-top: 0;
+        }
+        .video {
+          width: 200px;
+        }
+      }
+    }
+    .chat {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 30%;
+      display: inline-block;
+      box-sizing: border-box;
+      height: 100%;
+      background: #000;
+      color: #fff;
       font-size: 20px;
-      margin-top: 0;
+      font-weight: 300;
+      padding: 20px;
     }
-    .video {
-      width: 200px;
+  }
+  .connection-selector {
+    width: 500px;
+    margin: auto;
+    .username {
+      width: 100%;
+      padding: 10px;
+      font-size: 26px;
+      box-sizing: border-box;
+      border: 3px solid #ddd;
+      box-shadow: none !important;
+      margin-top: 20px;
+      &:focus {
+        border-color: #ccc;
+      }
+    }
+    .go {
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 26px;
+      background: #71af1a;
+      color: #fff;
+      border: none;
     }
   }
 }

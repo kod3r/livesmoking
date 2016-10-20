@@ -1,4 +1,5 @@
 import debug from 'debug'
+
 const log = debug('signaler')
 
 export default class Signaler {
@@ -10,7 +11,7 @@ export default class Signaler {
   getWS() {
     if (!this.ws) {
       this.ws = new Promise(resolve => {
-        const ws = new WebSocket(this.url)
+        const ws = new window.WebSocket(this.url)
         ws.onmessage = (e) => {
           const data = JSON.parse(e.data)
           const [event, payload] = data

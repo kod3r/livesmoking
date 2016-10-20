@@ -11,6 +11,8 @@ turn-server:
 
 signal-server:
   build: signal-server
+  environment:
+    DEBUG: "*"
 
 site:
   build: site
